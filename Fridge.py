@@ -88,18 +88,19 @@ class SmartFridgeApp(tk.Tk):
     def clicker1(self): # Popup confirming restart
         choice1 = messagebox.askquestion("Reboot","Are you sure you want to reboot the system?")
         if choice1 == 'yes':
-            subprocess.call(['sudo', 'restart', '-h', '-t 5','now'])
+            subprocess.call(['sudo', 'shutdown', '-r', '-t 5','now'])
 
     def clicker2(self): # Popup confirming reset
         choice2 = messagebox.askquestion("Reset","Are you sure you want to reset? \n Proceeding will sign you out")
         if choice2 == 'yes':
             self.switch_frame(Login)
-
+            
+    def entry_callback(self, event):
+        os.popen('matchbox-keyboard','r',4096)
 
 class Login(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg = bg_color)
-
         global username_verify
         global password_verify
         global username_entry1
@@ -142,13 +143,13 @@ class Login(tk.Frame):
         username_entry1 = Entry(design_frame4, textvariable = username_verify, fg="black", font=("yu gothic ui semibold", 12), highlightthickness=2)
         username_entry1.place(x=134, y=170, width=256, height=34)
         username_entry1.config(highlightbackground="black", highlightcolor="black")
-
+        username_entry1.bind('<FocusIn>', master.entry_callback)
         # Password Entry
         Label(design_frame4, text='• Password', fg="white", bg=bg_color, font=("yu gothic ui", 11, 'bold')).place(x=130, y=220)
         password_entry1 = Entry(design_frame4, textvariable = password_verify, fg="black", font=("yu gothic ui semibold", 12), show='•', highlightthickness=2)
         password_entry1.place(x=134, y=250, width=256, height=34)
         password_entry1.config(highlightbackground="black", highlightcolor="black")
-
+        password_entry1.bind('<FocusIn>', master.entry_callback)
         # checkbutton for hiding and showing password
         checkButton = Checkbutton(design_frame4, fg = "#949494", bg=bg_color, text='show password', activebackground=bg_color, activeforeground="#949494",
                                     command=master.password_command1)
@@ -211,19 +212,19 @@ class Register(tk.Frame):
         username_entry = Entry(design_frame8, textvariable = username, fg="black", font=("yu gothic ui semibold", 12), highlightthickness=2)
         username_entry.place(x=134, y=150, width=256, height=34)
         username_entry.config(highlightbackground="black", highlightcolor="black")
-
+        username_entry.bind('<FocusIn>', master.entry_callback)
         # Password Entry
         Label(design_frame8, text='• Password', fg="white", bg=bg_color, font=("yu gothic ui", 11, 'bold')).place(x=130, y=190)
         password_entry = Entry(design_frame8, textvariable = password, fg="black", font=("yu gothic ui semibold", 12), show='•', highlightthickness=2)
         password_entry.place(x=134, y=220, width=256, height=34)
         password_entry.config(highlightbackground="black", highlightcolor="black")
-
+        password_entry.bind('<FocusIn>', master.entry_callback)
         # Verify password
         Label(design_frame8, text='• Verify Password', fg="white", bg=bg_color, font=("yu gothic ui", 11, 'bold')).place(x=130, y=265)
         verify_password_entry= Entry(design_frame8, textvariable = password1, fg="black", font=("yu gothic ui semibold", 12), show='•', highlightthickness=2)
         verify_password_entry.place(x=134, y=295, width=256, height=34)
         verify_password_entry.config(highlightbackground="black", highlightcolor="black")
-
+        verify_password_entry.bind('<FocusIn>', master.entry_callback)
         # checkbutton for hiding and showing password
         checkButton = Checkbutton(design_frame8, fg = "#949494", bg=bg_color, text='show password', activebackground=bg_color, activeforeground="#949494",
         command=lambda:[master.password_command0(), master.password_command()])
@@ -367,13 +368,18 @@ class AdustInterface(tk.Frame):
     #def __init__(self, master):
         #tk.Frame.__init__(self, master, bg = bg_color)
 
+
 ############ Initiallize app ############
 if __name__ == "__main__":
     root = SmartFridgeApp()
     root.title("Smart Fridge 1.5")
     root.rowconfigure(0, weight=1)
     root.columnconfigure(0, weight=1)
+    root.geometry("1280x720") # resolution of the touchscreen 1280x720
     root.resizable(0, 0)
-    root.geometry("1280x720")   # resolution of the touchscreen 1280x720
+    root.attributes('-topmost', 0)
     #root.attributes('-fullscreen', True)
+    #root.attributes('-zoomed', True)
+    #root.lower()
+    
     root.mainloop()
