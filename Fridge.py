@@ -2,9 +2,14 @@ from tkinter import *
 from tkinter import ttk
 from PIL import ImageTk, Image
 from tkinter import messagebox
+from tkinter import ttk as objTTK
+from functools import partial
+
 import tkinter as tk
 import subprocess
 import os
+import tkinter as objTK
+import datetime as objDateTime
 
 
 bg_color = "#001532" # change background color
@@ -26,7 +31,7 @@ class SmartFridgeApp(tk.Tk):    # Main Class
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame("Login")
+        self.show_frame("MainMenu")
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
@@ -92,68 +97,54 @@ class SmartFridgeApp(tk.Tk):    # Main Class
 
     # Functions for ItemsList Page
     def List_delete_all(self): # Delets all items
-        for record in List.get_children():
-            List.delete(record)
+        for values in List.get_children():
+            List.delete(values)
     def List_delete_selected(self): # Delete multiple selected ITEMS
         List_selected = List.selection()
-        for record in List_selected:
-            List.delete(record)
+        for values in List_selected:
+            List.delete(values)
 
     # Functions for AddItems Page
     def add_record(self): # adds the data to the table (List)
-        global count
-        if count % 2 == 0:
-            List.insert(parent='', index='end', iid=count, text=count+1, values=(name_entry.get(), type_entry.get(),
-                                            exdate_entry.get(), remain_entry.get()), tags=('evenrow',))
-        else:
-            List.insert(parent='', index='end', iid=count, text=count+1, values=(name_entry.get(), type_entry.get(),
-                                            exdate_entry.get(), remain_entry.get()), tags=('oddrow',))
-        count += 1
-        # clear the entry boxes
+        List.insert("", "end", values=(name_entry.get(), brand_entry.get(), exdate_entry.get(), remain_entry.get()))
         name_entry.delete(0, END)
-        type_entry.delete(0, END)
+        brand_entry.delete(0, END)
         exdate_entry.delete(0, END)
         remain_entry.delete(0, END)
 
     # Functions for ShoppingList Page
     def ShoppingList_delete_all(self): # Delets all items
-        for record in ShoppingList.get_children():
-            ShoppingList.delete(record)
+        for values in ShoppingList.get_children():
+            ShoppingList.delete(values)
     def ShoppingList_delete_selected(self): # Delete multiple selected ITEMS
         ShoppingList_delete_selected = ShoppingList.selection()
-        for record in ShoppingList_delete_selected:
-            ShoppingList.delete(record)
+        for values in ShoppingList_delete_selected:
+            ShoppingList.delete(values)
     def ShoppingList_add_popup (self): # add item pop up
         global name_entry1
-        global type_entry1
+        global brand_entry1
         pop = Toplevel(self, bg = bg_color)
         pop.title("Add items to your Shpping list")
         pop.geometry("780x130")
 
-
         Label(pop, text = "Name:", font=("yu gothic ui", 15, 'bold'), fg = "white", bg = bg_color).grid(row=0, column=0, sticky=W, padx=(30,0))
-        Label(pop, text = "Type:", font=("yu gothic ui", 15, 'bold'), fg = "white", bg = bg_color).grid(row=0, column=1, sticky=W, padx=(5,0))
+        Label(pop, text = "Brand:", font=("yu gothic ui", 15, 'bold'), fg = "white", bg = bg_color).grid(row=0, column=1, sticky=W, padx=(5,0))
         #Entry Boxes
         name_entry1 = Entry(pop, font=("yu gothic ui", 20))
         name_entry1.grid(row=1, column=0, padx=(30,0))
         name_entry1.bind('<FocusIn>', self.entry_callback)
 
-        type_entry1 = Entry(pop, font=("yu gothic ui", 20))
-        type_entry1.grid(row=1, column=1, padx=(5,0))
-        type_entry1.bind('<FocusIn>', self.entry_callback)
+        brand_entry1 = Entry(pop, font=("yu gothic ui", 20))
+        brand_entry1.grid(row=1, column=1, padx=(5,0))
+        brand_entry1.bind('<FocusIn>', self.entry_callback)
 
         Button(pop, text="Confirm", font=("TkHeadingFont", 16), bg="#ebac00", fg="white", cursor="hand2",
             activebackground="#bb9008", activeforeground="black", command = self.ShoppingList_add_record).grid(row=1, column=3, padx=5)
     def ShoppingList_add_record(self): # adds the data to the table (ShoppingList)
-        global count1
-        if count1 % 2 == 0:
-            ShoppingList.insert(parent='', index='end', iid=count1, text=count1+1, values=(name_entry1.get(), type_entry1.get()), tags=('evenrow',))
-        else:
-            ShoppingList.insert(parent='', index='end', iid=count1, text=count+1, values=(name_entry1.get(), type_entry1.get()), tags=('oddrow',))
-        count1 += 1
+        ShoppingList.insert("", "end", values=(name_entry1.get(), brand_entry1.get()))
         # clear the entry boxes
         name_entry1.delete(0, END)
-        type_entry1.delete(0, END)
+        brand_entry1.delete(0, END)
 
     # Functions for Settings Page
     def Reset_prompt(self): # Popup confirming reset
@@ -377,8 +368,73 @@ class ItemsList(tk.Frame):
         tk.Frame.__init__(self, master, bg = bg_color)
         self.controller = controller
 
+        class MyTreeview(objTTK.Treeview):
+                def heading(self, column, sort_by=None, **kwargs):
+                    if sort_by and not hasattr(kwargs, 'command'):
+                        func = getattr(self, f"_sort_by_{sort_by}", None)
+                        if func:
+                            kwargs['command'] = partial(func, column, False)
+                        # End of if
+                    # End of if
+                    return super().heading(column, **kwargs)
+                # End of heading()
+
+                def _sort(self, column, reverse, data_type, callback):
+                    l = [(self.set(k, column), k) for k in self.get_children('')]
+                    l.sort(key=lambda t: data_type(t[0]), reverse=reverse)
+                    for index, (_, k) in enumerate(l):
+                        self.move(k, '', index)
+                    # End of for loop
+                    self.heading(column, command=partial(callback, column, not reverse))
+                # End of _sort()
+
+                def _sort_by_num(self, column, reverse):
+                    self._sort(column, reverse, int, self._sort_by_num)
+                # End of _sort_by_num()
+
+                def _sort_by_name(self, column, reverse):
+                    self._sort(column, reverse, str, self._sort_by_name)
+                # End of _sort_by_num()
+
+                def _sort_by_date(self, column, reverse):
+                    def _str_to_datetime(string):
+                        return objDateTime.datetime.strptime(string, "%m-%d-%Y")
+                    # End of _str_to_datetime()
+
+                    self._sort(column, reverse, _str_to_datetime, self._sort_by_date)
+                # End of _sort_by_num()
+
+                def _sort_by_multidecimal(self, column, reverse):
+                    def _multidecimal_to_str(string):
+                        arrString = string.split(".")
+                        strNum = ""
+                        for iValue in arrString:
+                            strValue = f"{int(iValue):02}"
+                            strNum = "".join([strNum, str(strValue)])
+                        # End of for loop
+                        strNum = "".join([strNum, "0000000"])
+                        return int(strNum[:8])
+                    # End of _multidecimal_to_str()
+
+                    self._sort(column, reverse, _multidecimal_to_str, self._sort_by_multidecimal)
+                # End of _sort_by_num()
+
+                def _sort_by_percentage(self, column, reverse):
+                    def _percentage_to_num(string):
+                        return int(string.replace("%", ""))
+                    # End of _percentage_to_num()
+
+                    self._sort(column, reverse, _percentage_to_num, self._sort_by_percentage)
+                # End of _sort_by_num()
+                def _sort_by_numcomma(self, column, reverse):
+                    def _numcomma_to_num(string):
+                        return int(string.replace(",", ""))
+                    # End of _numcomma_to_num()
+
+                    self._sort(column, reverse, _numcomma_to_num, self._sort_by_numcomma)
+                # End of _sort_by_num()
+
         global List
-        global count
 
         logo_img = ImageTk.PhotoImage(file="assets/WVU_Logo.png")
         logo_widget = tk.Label(self, image=logo_img, bg=bg_color)
@@ -386,13 +442,14 @@ class ItemsList(tk.Frame):
         logo_widget.place(x=0, y=20)
 
         tk.Label(self, text="List of Items", bg=bg_color, fg="white", font=("TkMenuFont", 40)).place(x=493, y = 40)
-
         # Creat a frame to put the list and scrollbar in
         Design_frame1 = Listbox(self, width=126, height=31, bg =bg_color, highlightthickness=0, borderwidth=0)
         Design_frame1.place(x=270, y = 130)
 
+        arrlbHeader = ["Name", "Brand", "Expiration Date", "Remaining"]
+
         # Creating Treeview List
-        List = ttk.Treeview(Design_frame1, show='headings', height=8)
+        List = MyTreeview(Design_frame1, columns=arrlbHeader, show="headings")
         # positioning the Treeview List
         List.place(x=0, y=0, width = 735, height=420)
         # Tree View Scrollbar
@@ -409,40 +466,49 @@ class ItemsList(tk.Frame):
         style.configure("Treeview", font=("", 15), rowheight=35)  #foreground="white"   #fieldbackground="Green"   #background="#bb9008"
         style.map('Treeview', background=[('selected', '#ebac00')]) # color when selected
 
-        # Define Columns
-        List['columns'] = ("Name", "Type", "ExpirationDate", "Remaining")
-        # Formating columns (There will be a hidden column called "#0". Using that for "Item #")
-        List.column("#0", anchor=W, width=45, minwidth=25) # "Hidden"
-        List.column("Name", anchor=W, width=120, minwidth=90)
-        List.column("Type", anchor=W, width=120, minwidth=60)
-        List.column("ExpirationDate", anchor=W, width=120, minwidth=90)
-        List.column("Remaining", anchor=CENTER, minwidth=25, stretch = NO)
-        # Columns Headings
-        List.heading("#0", text="     #", anchor=W)
-        List.heading("Name", text="Item Name", anchor=W)
-        List.heading("Type", text="Item Type", anchor=W)
-        List.heading("ExpirationDate", text="Expiration Date", anchor=W)
-        List.heading("Remaining", text="% Remaining", anchor=CENTER)
-        # Inputing Data
-        data = [
-            ["Rice", "Food", "12/10/2022", "100%"],
-            ["Milk", "Drink", "12/10/2022", "90%"],
-            ["Pasta", "Food", "12/10/2022", "80%"],
-            ["Orange Juice", "Drink", "08/31/2022", "40%"],
-            ["Potato", "Food", "12/10/2022", "100%"],
-            ["Tomato", "Food", "12/10/2022", "100%"]
+        arrRows =[
+            ["A", "C", "12-04-2022", "40%"],
+            ["B", "A", "12-06-2022", "60%"],
+            ["C", "D", "12-01-2022", "20%"],
+            ["D", "B", "12-02-2022", "30%"],
+            ["E", "F", "12-05-2022", "50%"],
+            ["F", "E", "12-03-2022", "100%"]
             ]
 
-        # Insets data and creates striped rows
-        List.tag_configure('oddrow', background = "white")
-        List.tag_configure('evenrow', background = "#C9C9C7")
-        count = 0
-        for record in data:
-            if count % 2 == 0:
-                List.insert(parent='', index='end', iid=count, text=count+1, values=(record[0], record[1], record[2], record[3]), tags=('evenrow',))
-            else:
-                List.insert(parent='', index='end', iid=count, text=count+1, values=(record[0], record[1], record[2], record[3]), tags=('oddrow',))
-            count += 1
+        # arrRows =[
+        #     ["Rice", "Food", "12-10-2022", "100%"],
+        #     ["Milk", "Drink", "12-10-2022", "90%"],
+        #     ["Pasta", "Food", "12-10-2022", "80%"],
+        #     ["Orange Juice", "Drink", "08-31-2022", "40%"],
+        #     ["Potato", "Food", "12-10-2022", "100%"],
+        #     ["Tomato", "Food", "12-10-2022", "100%"]
+        #     ]
+
+        arrColWidth = [57, 53, 85, 69]
+        arrColAlignment = ["center", "center", "center", "center", "center"]
+
+        arrSortType = ["name", "name", "date", "percentage"]
+        for iCount in range(len(arrlbHeader)):
+            strHdr = arrlbHeader[iCount]
+            List.heading(strHdr, text=strHdr.title(), sort_by=arrSortType[iCount])
+            List.column(arrlbHeader[iCount], width=arrColWidth[iCount], stretch=True, anchor=arrColAlignment[iCount])
+        # End of for loop
+
+        for iCount in range(len(arrRows)):
+            List.insert("", "end", values=arrRows[iCount])
+
+
+        # End of for loop
+
+        # List.tag_configure('oddrow', background = "white")
+        # List.tag_configure('evenrow', background = "#C9C9C7")
+        # iCount = 0
+        # for iCount in range(len(arrRows)):
+        #     if iCount % 2 == 0:
+        #         List.insert("", "end", values=arrRows[iCount], tags=('evenrow',))
+        #     else:
+        #         List.insert("", "end", values=arrRows[iCount], tags=('oddrow',))
+        #     iCount += 1
 
         # Delete Selected Items button
         delete_selected_button = Button(self, text= "Delete", command = controller.List_delete_selected, font=("", 15))
@@ -470,7 +536,7 @@ class AddItems(tk.Frame):
         global List
         global count
         global name_entry
-        global type_entry
+        global brand_entry
         global exdate_entry
         global remain_entry
 
@@ -496,9 +562,9 @@ class AddItems(tk.Frame):
         name_entry.grid(row=1, column=0)
         name_entry.bind('<FocusIn>', controller.entry_callback)
 
-        type_entry = Entry(Design_frame1, font=("yu gothic ui", 15))
-        type_entry.grid(row=1, column=1)
-        type_entry.bind('<FocusIn>', controller.entry_callback)
+        brand_entry = Entry(Design_frame1, font=("yu gothic ui", 15))
+        brand_entry.grid(row=1, column=1)
+        brand_entry.bind('<FocusIn>', controller.entry_callback)
 
         exdate_entry = Entry(Design_frame1, font=("yu gothic ui", 15))
         exdate_entry.grid(row=1, column=2)
@@ -640,6 +706,72 @@ class SuggestedShopping(tk.Frame):
         tk.Frame.__init__(self, master, bg = bg_color)
         self.controller = controller
 
+        class MyTreeview(objTTK.Treeview):
+                def heading(self, column, sort_by=None, **kwargs):
+                    if sort_by and not hasattr(kwargs, 'command'):
+                        func = getattr(self, f"_sort_by_{sort_by}", None)
+                        if func:
+                            kwargs['command'] = partial(func, column, False)
+                        # End of if
+                    # End of if
+                    return super().heading(column, **kwargs)
+                # End of heading()
+
+                def _sort(self, column, reverse, data_type, callback):
+                    l = [(self.set(k, column), k) for k in self.get_children('')]
+                    l.sort(key=lambda t: data_type(t[0]), reverse=reverse)
+                    for index, (_, k) in enumerate(l):
+                        self.move(k, '', index)
+                    # End of for loop
+                    self.heading(column, command=partial(callback, column, not reverse))
+                # End of _sort()
+
+                def _sort_by_num(self, column, reverse):
+                    self._sort(column, reverse, int, self._sort_by_num)
+                # End of _sort_by_num()
+
+                def _sort_by_name(self, column, reverse):
+                    self._sort(column, reverse, str, self._sort_by_name)
+                # End of _sort_by_num()
+
+                def _sort_by_date(self, column, reverse):
+                    def _str_to_datetime(string):
+                        return objDateTime.datetime.strptime(string, "%m-%d-%Y")
+                    # End of _str_to_datetime()
+
+                    self._sort(column, reverse, _str_to_datetime, self._sort_by_date)
+                # End of _sort_by_num()
+
+                def _sort_by_multidecimal(self, column, reverse):
+                    def _multidecimal_to_str(string):
+                        arrString = string.split(".")
+                        strNum = ""
+                        for iValue in arrString:
+                            strValue = f"{int(iValue):02}"
+                            strNum = "".join([strNum, str(strValue)])
+                        # End of for loop
+                        strNum = "".join([strNum, "0000000"])
+                        return int(strNum[:8])
+                    # End of _multidecimal_to_str()
+
+                    self._sort(column, reverse, _multidecimal_to_str, self._sort_by_multidecimal)
+                # End of _sort_by_num()
+
+                def _sort_by_percentage(self, column, reverse):
+                    def _percentage_to_num(string):
+                        return int(string.replace("%", ""))
+                    # End of _percentage_to_num()
+
+                    self._sort(column, reverse, _percentage_to_num, self._sort_by_percentage)
+                # End of _sort_by_num()
+                def _sort_by_numcomma(self, column, reverse):
+                    def _numcomma_to_num(string):
+                        return int(string.replace(",", ""))
+                    # End of _numcomma_to_num()
+
+                    self._sort(column, reverse, _numcomma_to_num, self._sort_by_numcomma)
+                # End of _sort_by_num()
+
         global ShoppingList
         global count1
 
@@ -660,8 +792,13 @@ class SuggestedShopping(tk.Frame):
         Design_frame1 = Listbox(self, width=126, height=31, bg =bg_color, highlightthickness=0, borderwidth=0)
         Design_frame1.place(x=270, y = 130)
 
+
+
+        # Define Columns
+        arrlbHeader = ["Name", "Type"] #ShoppingList['columns'] = ("Name", "Type")
+
         # Creating Treeview List
-        ShoppingList = ttk.Treeview(Design_frame1, show='headings', height=8)
+        ShoppingList = MyTreeview(Design_frame1, columns=arrlbHeader, show="headings")
         # positioning the Treeview List
         ShoppingList.place(x=0, y=0, width = 735, height=420)
         # Tree View Scrollbar
@@ -674,18 +811,16 @@ class SuggestedShopping(tk.Frame):
         style.map('Treeview', background=[('selected', '#ebac00')]) # color when selected
 
 
-        # Define Columns
-        ShoppingList['columns'] = ("Name", "Type")
-        # Formating columns (There will be a hidden column called "#0". Using that for "Item #")
-        ShoppingList.column("#0", anchor=W, width=45, minwidth=25) # "Hidden"
-        ShoppingList.column("Name", anchor=W, width=120, minwidth=90)
-        ShoppingList.column("Type", anchor=W, width=120, minwidth=60)
-        # Columns Headings
-        ShoppingList.heading("#0", text="     #", anchor=W)
-        ShoppingList.heading("Name", text="Item Name", anchor=W)
-        ShoppingList.heading("Type", text="Item Type", anchor=W)
+        # # Formating columns (There will be a hidden column called "#0". Using that for "Item #")
+        # ShoppingList.column("#0", anchor=W, width=45, minwidth=25) # "Hidden"
+        # ShoppingList.column("Name", anchor=W, width=120, minwidth=90)
+        # ShoppingList.column("Type", anchor=W, width=120, minwidth=60)
+        # # Columns Headings
+        # ShoppingList.heading("#0", text="     #", anchor=W)
+        # ShoppingList.heading("Name", text="Item Name", anchor=W)
+        # ShoppingList.heading("Type", text="Item Type", anchor=W)
         # Inputing Data
-        Shopping_data = [
+        arrRows = [
             ["Rice", "Food"],
             ["Milk", "Drink"],
             ["Pasta", "Food"],
@@ -705,16 +840,33 @@ class SuggestedShopping(tk.Frame):
             ["Potato", "Food"],
             ["Rice", "Food"]
             ]
-            # Creating striped rows
-        ShoppingList.tag_configure('oddrow', background = "white")
-        ShoppingList.tag_configure('evenrow', background = "#C9C9C7")
-        count1 = 0
-        for record in Shopping_data:
-            if count1 % 2 == 0:
-                ShoppingList.insert(parent='', index='end', iid=count1, text=count1+1, values=(record[0], record[1]), tags=('evenrow',))
-            else:
-                ShoppingList.insert(parent='', index='end', iid=count1, text=count1+1, values=(record[0], record[1]), tags=('oddrow',))
-            count1 += 1
+
+
+        arrColWidth = [57, 53]
+        arrColAlignment = ["center", "center"]
+
+        arrSortType = ["name", "name"]
+
+        for iCount in range(len(arrlbHeader)):
+            strHdr = arrlbHeader[iCount]
+            ShoppingList.heading(strHdr, text=strHdr.title(), sort_by=arrSortType[iCount])
+            ShoppingList.column(arrlbHeader[iCount], width=arrColWidth[iCount], stretch=True, anchor=arrColAlignment[iCount])
+        # End of for loop
+
+        for iCount in range(len(arrRows)):
+            ShoppingList.insert("", "end", values=arrRows[iCount])
+
+
+        #     # Creating striped rows
+        # ShoppingList.tag_configure('oddrow', background = "white")
+        # ShoppingList.tag_configure('evenrow', background = "#C9C9C7")
+        # count1 = 0
+        # for record in Shopping_data:
+        #     if count1 % 2 == 0:
+        #         ShoppingList.insert(parent='', index='end', iid=count1, text=count1+1, values=(record[0], record[1]), tags=('evenrow',))
+        #     else:
+        #         ShoppingList.insert(parent='', index='end', iid=count1, text=count1+1, values=(record[0], record[1]), tags=('oddrow',))
+        #     count1 += 1
 
         # Delete Selected Items button
         delete_selected_button = Button(self, text= "Delete", command = controller.ShoppingList_delete_selected, font=("", 15))
@@ -808,6 +960,7 @@ class AdjustInterface(tk.Frame):
         tk.Button(self, text="Go Back", font=("TkHeadingFont", 20), bg="#ebac00", fg="white", cursor="hand2",
             activebackground="#bb9008", activeforeground="black", command=lambda:controller.show_frame("Settings")
             ).place(x=1260, y=700, anchor="se")
+
 
 #class PageName(tk.Frame):
     #def __init__(self, master, controller):
