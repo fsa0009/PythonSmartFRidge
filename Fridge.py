@@ -14,6 +14,7 @@ import datetime as objDateTime
 
 bg_color = "#001532" # change background color
 
+
 class SmartFridgeApp(tk.Tk):    # Main Class
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -31,7 +32,7 @@ class SmartFridgeApp(tk.Tk):    # Main Class
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame("MainMenu")
+        self.show_frame("SuggestedShopping")
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
@@ -123,9 +124,22 @@ class SmartFridgeApp(tk.Tk):    # Main Class
     def ShoppingList_add_popup (self): # add item pop up
         global name_entry1
         global brand_entry1
+        global root
         pop = Toplevel(self, bg = bg_color)
-        pop.title("Add items to your Shpping list")
+        pop.title("Add items to your Shopping list")
         pop.geometry("780x130")
+
+        ########################## Ignore This ##############################
+        # Gets the requested values of the height and widht.
+        windowWidth = root.winfo_reqwidth()
+        windowHeight = root.winfo_reqheight()
+        print("Width",windowWidth,"Height",windowHeight)
+        # Gets both half the screen width/height and window width/height
+        positionRight = int(root.winfo_screenwidth()/2.5 - windowWidth/2.5)
+        positionDown = int(root.winfo_screenheight()/2 - windowHeight/2)
+        # Positions the window in the center of the page.
+        pop.geometry("+{}+{}".format(positionRight, positionDown))
+        ####################################################################
 
         Label(pop, text = "Name:", font=("yu gothic ui", 15, 'bold'), fg = "white", bg = bg_color).grid(row=0, column=0, sticky=W, padx=(30,0))
         Label(pop, text = "Brand:", font=("yu gothic ui", 15, 'bold'), fg = "white", bg = bg_color).grid(row=0, column=1, sticky=W, padx=(5,0))
@@ -140,6 +154,7 @@ class SmartFridgeApp(tk.Tk):    # Main Class
 
         Button(pop, text="Confirm", font=("TkHeadingFont", 16), bg="#ebac00", fg="white", cursor="hand2",
             activebackground="#bb9008", activeforeground="black", command = self.ShoppingList_add_record).grid(row=1, column=3, padx=5)
+
     def ShoppingList_add_record(self): # adds the data to the table (ShoppingList)
         ShoppingList.insert("", "end", values=(name_entry1.get(), brand_entry1.get()))
         # clear the entry boxes
@@ -546,17 +561,18 @@ class AddItems(tk.Frame):
         logo_widget.place(x=0, y=20)
 
         tk.Label(self, text="Add Items", bg=bg_color, fg="white", font=("TkMenuFont", 40)).place(x=517, y = 40)
-        tk.Label(self, text="Scan or manually add items:", bg=bg_color, fg="white", font=("TkMenuFont", 20)).place(x=180, y = 120)
+        tk.Label(self, text="Scan or manually add item info:", bg=bg_color, fg="white", font=("TkMenuFont", 20)).place(x=180, y = 120)
         tk.Label(self, text="Choose Item location:", bg=bg_color, fg="white", font=("TkMenuFont", 20)).place(x=180, y = 230)
 
         # Frame to put the entry boxes in it
         Design_frame1 = Listbox(self, width=100, height=33, highlightthickness=0, borderwidth=0)
-        Design_frame1.place(x=180, y = 160)
+        Design_frame1.place(x=310, y = 160)
         # Label for adding data entry boxes
         Label(Design_frame1, text = "Item Name", font=("yu gothic ui", 15, 'bold'), bg="white").grid(row=0, column=0)
-        Label(Design_frame1, text = "Item Type", font=("yu gothic ui", 15, 'bold'), bg="white").grid(row=0, column=1)
-        Label(Design_frame1, text = "Expiration Date", font=("yu gothic ui", 15, 'bold'), bg="white").grid(row=0, column=2)
-        Label(Design_frame1, text = "% Remaining", font=("yu gothic ui", 15, 'bold'), bg="white").grid(row=0, column=3)
+        Label(Design_frame1, text = "Item Brand", font=("yu gothic ui", 15, 'bold'), bg="white").grid(row=0, column=1)
+        Label(Design_frame1, text = "Expiration Date*", font=("yu gothic ui", 15, 'bold'), bg="white").grid(row=0, column=2)
+        # Label(Design_frame1, text = "% Remaining", font=("yu gothic ui", 15, 'bold'), bg="white").grid(row=0, column=3)
+
         #Entry Boxes
         name_entry = Entry(Design_frame1, font=("yu gothic ui", 15))
         name_entry.grid(row=1, column=0)
@@ -570,8 +586,8 @@ class AddItems(tk.Frame):
         exdate_entry.grid(row=1, column=2)
         exdate_entry.bind('<FocusIn>', controller.entry_callback)
 
-        remain_entry = Entry(Design_frame1, font=("yu gothic ui", 15))
-        remain_entry.grid(row=1, column=3)
+        # remain_entry = Entry(Design_frame1, font=("yu gothic ui", 15))
+        # remain_entry.grid(row=1, column=3)
         # remain_entry.bind('<FocusIn>', controller.entry_callback)
 
         # Label for choosing the sensor
@@ -610,7 +626,6 @@ class AddItems(tk.Frame):
         SensorBtn6 =Button(Design_frame2, text= "Sensor #6", font=("TkHeadingFont", 25), bg="#ebac00", fg="white", cursor="hand2",
             activebackground="#bb9008", activeforeground="black", height= 3)
         SensorBtn6.grid(row=1, column=3, padx = [30,0])
-
 
 
         # The Add button
@@ -795,7 +810,7 @@ class SuggestedShopping(tk.Frame):
 
 
         # Define Columns
-        arrlbHeader = ["Name", "Type"] #ShoppingList['columns'] = ("Name", "Type")
+        arrlbHeader = ["Name", "Brand"] #ShoppingList['columns'] = ("Name", "Type")
 
         # Creating Treeview List
         ShoppingList = MyTreeview(Design_frame1, columns=arrlbHeader, show="headings")
@@ -821,24 +836,24 @@ class SuggestedShopping(tk.Frame):
         # ShoppingList.heading("Type", text="Item Type", anchor=W)
         # Inputing Data
         arrRows = [
-            ["Rice", "Food"],
-            ["Milk", "Drink"],
-            ["Pasta", "Food"],
-            ["Orange Juice", "Drink"],
-            ["Potato", "Food"],
-            ["Rice", "Food"],
-            ["Milk", "Drink"],
-            ["Pasta", "Food"],
-            ["Orange Juice", "Drink"],
-            ["Potato", "Food"],
-            ["Rice", "Food"],
-            ["Potato", "Food"],
-            ["Rice", "Food"],
-            ["Milk", "Drink"],
-            ["Pasta", "Food"],
-            ["Orange Juice", "Drink"],
-            ["Potato", "Food"],
-            ["Rice", "Food"]
+            ["Rice", "Brand #1"],
+            ["Milk", "Brand #2"],
+            ["Pasta", "Brand #3"],
+            ["Orange Juice", "Brand #4"],
+            ["Potato", "Brand #5"],
+            ["Rice", "Brand #6"],
+            ["Milk", "Brand #7"],
+            ["Pasta", "Brand #8"],
+            ["Orange Juice", "Brand #9"],
+            ["Potato", "Brand #10"],
+            ["Rice", "Brand #11"],
+            ["Potato", "Brand #12"],
+            ["Rice", "Brand #13"],
+            ["Milk", "Brand #14"],
+            ["Pasta", "Brand #15"],
+            ["Orange Juice", "Brand #16"],
+            ["Potato", "Brand #17"],
+            ["Rice", "Brand #18"]
             ]
 
 
@@ -974,5 +989,19 @@ if __name__ == "__main__":
     root.geometry("1280x720")
     root.resizable(0, 0)
     root.attributes('-topmost', 0)
+
+    ########################## Ignore This ###############################
+    # Gets the requested values of the height and widht.
+    windowWidth = root.winfo_reqwidth()
+    windowHeight = root.winfo_reqheight()
+    print("Width",windowWidth,"Height",windowHeight)
+    # Gets both half the screen width/height and window width/height
+    positionRight = int(root.winfo_screenwidth()/3.5 - windowWidth/2)
+    positionDown = int(root.winfo_screenheight()/3.5 - windowHeight/2)
+    # Positions the window in the center of the page.
+    root.geometry("+{}+{}".format(positionRight, positionDown))
+    ####################################################################
+
+
     #root.attributes('-fullscreen', 1)
     root.mainloop()
