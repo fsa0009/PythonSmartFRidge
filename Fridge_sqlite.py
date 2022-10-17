@@ -11,9 +11,10 @@ import os
 import tkinter as objTK
 import datetime as objDateTime
 import customtkinter
+import sqlite3
 
 customtkinter.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
-#customtkinter.set_default_color_theme("wvu")  # Themes: "blue" (standard), "green", "dark-blue", "sweetkind"
+#customtkinter.set_default_color_theme("green")  # Themes: "blue" (standard), "green", "dark-blue", "sweetkind"
 customtkinter.set_default_color_theme("assets/themes/wvu-dark.json")
 
 class SmartFridgeApp(customtkinter.CTk):    # Main Class
@@ -106,20 +107,253 @@ class SmartFridgeApp(customtkinter.CTk):    # Main Class
             password_entry1.config(show='•')
 
     # Functions for ItemsList Page
-    def List_delete_all(self): # Delets all items
-        for values in List.get_children():
-            List.delete(values)
+    def List_delete_one(self): # Delete one selected ITEM
+        List_selected = List.selection()
+        if List.selection()==():
+            messagebox.showerror("", "Please Select an Item to Delete")
+        else:
+            choice = messagebox.askquestion("Delete Item", "Are you sure you want to delete the selected item?")
+            if choice == 'yes':
+
+                ############## Delete item from  Database ##############
+                conn = sqlite3.connect('items_list.db')
+                c = conn.cursor()
+                # Delete item from the table
+
+                c.execute("DELETE from items WHERE oid =" + oid_entry.get())
+
+                # clear entries
+                self.clear_entries()
+                # Commit changes
+                conn.commit()
+                # Close our connection
+                conn.close()
+                #########################################################
+                # Clear the Treeview
+                List.delete(*List.get_children())
+                # Requiry
+                self.query_database()
+                messagebox.showinfo ("", "Item Deleted!")
     def List_delete_selected(self): # Delete multiple selected ITEMS
         List_selected = List.selection()
-        for values in List_selected:
-            List.delete(values)
+        # Create List of ID's
+        ids_to_delete = []
+        # Add selections to ids_to_delete list
+        for record in List_selected:
+                ids_to_delete.append(List.item(record, "values")[4])
+        if List.selection()==():
+            messagebox.showerror("", "Please Select an Item to Delete")
+        else:
 
-    # Functions for AddItems Page
-    def add_record(self): # adds the data to the table (List)
-        List.insert("", "end", values=(name_entry.get(), brand_entry.get(), exdate_entry.get()))
+            choice = messagebox.askquestion("Delete Item", "Are you sure you want to delete the selected item?")
+            if choice == 'yes':
+
+                ##################### Delete selected from the Database ######################
+                conn = sqlite3.connect('items_list.db')
+                c = conn.cursor()
+                # Delete selected items from the table
+                c.executemany("DELETE FROM items WHERE rowid = ?", [(a,) for a in ids_to_delete])
+                # clear entries
+                self.clear_entries()
+                # Commit changes
+                conn.commit()
+                # Close our connection
+                conn.close()
+                #############################################################################
+                # Clear the Treeview
+                List.delete(*List.get_children())
+                # Requiry
+                self.query_database()
+                messagebox.showinfo ("", "Item/s Deleted!")
+    def List_delete_all(self): # Delets all items
+
+        choice = messagebox.askquestion("Delete All Items", "Are you sure you want to delete ALL items?")
+
+        if choice == 'yes':
+            ############## Delete everything from the Database ##############
+            conn = sqlite3.connect('items_list.db')
+            c = conn.cursor()
+            # Delete everything from the table
+
+            c.execute("DROP TABLE items ")
+
+            # clear entries
+            self.clear_entries()
+            # Commit changes
+            conn.commit()
+            # Close our connection
+            conn.close()
+
+            ##################################################################
+            # Clear the Treeview
+            List.delete(*List.get_children())
+            # Recreate the Table
+            self.create_after_drop()
+            messagebox.showinfo ("", "Items Deleted!")
+    def create_after_drop(self):
+        conn = sqlite3.connect('items_list.db')
+        # Create a cursor instance
+        c = conn.cursor()
+
+        # Create table
+        c.execute("""CREATE TABLE if not exists items(
+            item_name text,
+            brand_name text,
+            expiration_date date,
+            remaining_amount integer
+            )
+            """)
+
+        # Commit changes
+        conn.commit()
+
+        # Close our connection
+        conn.close()
+    def fake_database(self):
+        List_data =[
+            ["A", "C", "12-04-2022", "40%"],
+            ["B", "A", "12-06-2022", "60%"],
+            ["C", "D", "12-01-2022", "20%"],
+            ["D", "B", "12-02-2022", "30%"],
+            ["E", "F", "12-05-2022", "50%"],
+            ["F", "E", "12-03-2022", "100%"]
+            ]
+
+        for record in range(len(List_header)):
+            strHdr = List_header[record]
+            List.heading(strHdr, text=strHdr.title(), sort_by=List_SortType[record])
+            List.column(List_header[record], width=List_ColWidth[record], stretch=True, anchor=List_ColAlignment[record])
+
+        for record in range(len(List_data)):
+            List.insert("", "end", values=List_data[record])
+
+        conn = sqlite3.connect('items_list.db')
+        # Create a cursor instance
+        c = conn.cursor()
+
+        # Create table
+        c.execute("""CREATE TABLE if not exists items(
+            item_name text,
+            brand_name text,
+            expiration_date date,
+            remaining_amount integer
+            )
+            """)
+
+
+        for record in List_data:
+            c.execute("INSERT INTO items VALUES (:item_name, :brand_name, :expiration_date, :remaining_amount)",
+                {
+                'item_name': record[0],
+                'brand_name': record[1],
+                'expiration_date': record[2],
+                'remaining_amount': record[3]
+                }
+                )
+
+        # Commit changes
+        conn.commit()
+
+        # Close our connection
+        conn.close()
+    def select_record(self, e):
+        # clear entry boxes
         name_entry.delete(0, END)
         brand_entry.delete(0, END)
         exdate_entry.delete(0, END)
+        amount_entry.delete(0, END)
+        oid_entry.delete(0, END)
+
+        # Grab record number
+        selected = List.focus()
+        # Grab record VALUES
+        values = List.item(selected, "values")
+        # output to entry boxes
+        name_entry.insert(0, values[0])
+        brand_entry.insert(0, values[1])
+        exdate_entry.insert(0, values[2])
+        amount_entry.insert(0, values[3])
+        oid_entry.insert(0, values[4])
+    def clear_entries(self):
+        name_entry.delete(0, END)
+        brand_entry.delete(0, END)
+        exdate_entry.delete(0, END)
+        amount_entry.delete(0, END)
+        oid_entry.delete(0, END)
+    def update_record(self):
+        # Grab the record number
+        selected = List.focus()
+        List.item(selected, text="", values=(name_entry.get(), brand_entry.get(), exdate_entry.get(), amount_entry.get(), oid_entry.get()))
+
+        self.clear_entries()
+
+    # Functions for AddItems Page
+    def List_add_record(self): # adds the data to the table (List)
+        # List.insert("", "end", values=(name_entry.get(), brand_entry.get(), exdate_entry.get(), amount_entry.get()))
+
+        if name_entry.get()=="":
+            messagebox.showerror("", "Item's data needed")
+        else:
+            ############## Add to the Database ##############
+            conn = sqlite3.connect('items_list.db')
+            c = conn.cursor()
+
+            c.execute("INSERT INTO items VALUES (:item_name, :brand_name, :expiration_date, :remaining_amount)",
+                {
+                    'item_name': name_entry.get(),
+                    'brand_name': brand_entry.get(),
+                    'expiration_date': exdate_entry.get(),
+                    'remaining_amount': amount_entry.get(),
+                })
+
+            # Commit changes
+            conn.commit()
+            # Close our connection
+            conn.close()
+            #################################################
+            # Clear the Treeview
+            List.delete(*List.get_children())
+            # Requiry
+            self.query_database()
+
+            name_entry.delete(0, END)
+            brand_entry.delete(0, END)
+            exdate_entry.delete(0, END)
+            amount_entry.delete(0,END)
+    def query_database(self):
+        conn = sqlite3.connect('items_list.db')
+        c = conn.cursor()
+
+        c.execute("SELECT rowid, * FROM items")
+        records = c.fetchall()
+        # print(records)
+        # for record in records:
+        #     print(record)
+        global record
+        for record in range(len(List_header)):
+            strHdr = List_header[record]
+            List.heading(strHdr, text=strHdr.title(), sort_by=List_SortType[record])
+            List.column(List_header[record], width=List_ColWidth[record], stretch=True, anchor=List_ColAlignment[record])
+        count = 0
+        for record in records:
+            List.insert(parent='', index='end', iid=count, text=count+1, values= (record[1], record[2], record[3], record[4], record[0]) )
+            count += 1
+
+        # for record in range(len(List_data)):
+        #     List.insert("", "end", values=List_data[record])
+
+
+        # for record in records:
+        #     if count % 2 == 0:
+        #         List.insert(parent='', index='end', iid=count, text=count+1, values=(record[1], record[2], record[3], record[4]), tags=('evenrow',))
+        #     else:
+        #         List.insert(parent='', index='end', iid=count, text=count+1, values=(record[1], record[2], record[3], record[4]), tags=('oddrow',))
+        #     count += 1
+
+        # Commit changes
+        conn.commit()
+        # Close our connection
+        conn.close()
 
     # Functions for ShoppingList Page
     def ShoppingList_delete_all(self): # Delets all items
@@ -448,6 +682,15 @@ class ItemsList(customtkinter.CTkFrame):
                 # End of _sort_by_num()
 
         global List
+        global List_header
+        global List_SortType
+        global List_ColWidth
+        global List_ColAlignment
+        global name_entry
+        global brand_entry
+        global exdate_entry
+        global amount_entry
+        global oid_entry
 
         logo_img = ImageTk.PhotoImage(file="assets/images/WVU_Logo.png")
         logo_widget = customtkinter.CTkLabel(self, image=logo_img )
@@ -460,56 +703,82 @@ class ItemsList(customtkinter.CTkFrame):
         table_frame = customtkinter.CTkFrame(self,  highlightthickness=0, borderwidth=0, width=800, height=500)
         table_frame.place(relx=0.525, rely=0.53, anchor=tkinter.CENTER)
 
-        # Define the headers/columns
         List_header = ["Name", "Brand", "Expiration Date", "Remaining"]
+
         # Creating Treeview List
         List = MyTreeview(table_frame, columns=List_header, show="headings")
         # positioning the Treeview List
-        List.place(x=0, y=0, width = 735, height=420)
+        List.place(x=0, y=0, width = 735, height=390)
         # Tree View Scrollbar
         tree_Scroll = customtkinter.CTkScrollbar(table_frame, command=List.yview)
         tree_Scroll.place(x=737, y=0, height=420)
         List.configure(yscrollcommand=tree_Scroll.set)
 
-        # Configure header/column
         List_ColWidth = [57, 53, 85, 69]
-        List_ColAlignment = ["center", "center", "center", "center", "center"]
-        # Define columns type for the "sort by" function
+        List_ColAlignment = ["center", "center", "center", "center"]
         List_SortType = ["name", "name", "date", "percentage"]
-        # define the data data/rows
-        List_data =[
-            ["A", "C", "12-04-2022", "40%"],
-            ["B", "A", "12-06-2022", "60%"],
-            ["C", "D", "12-01-2022", "20%"],
-            ["D", "B", "12-02-2022", "30%"],
-            ["E", "F", "12-05-2022", "50%"],
-            ["F", "E", "12-03-2022", "100%"]
-            ]
-        # Adding the headers with the "sort by" function
-        for record in range(len(List_header)):
-            strHdr = List_header[record]
-            List.heading(strHdr, text=strHdr.title(), sort_by=List_SortType[record])
-            List.column(List_header[record], width=List_ColWidth[record], stretch=True, anchor=List_ColAlignment[record])
-        # Inserting the data
-        for record in range(len(List_data)):
-            List.insert("", "end", values=List_data[record])
+
+        ## uncomment this to inser fake Database
+        controller.fake_database()
+        # controller.query_database()
+#########################################################################################################################################
+
+        # Delete one Items Button
+        delete_one_button = customtkinter.CTkButton(self, text= "Delete", command = controller.List_delete_one, text_font=("TkHeadingtext_font", 20))
+        delete_one_button.place(x=1260, y=150, anchor="e")
 
         # Delete Selected Items Button
-        delete_selected_button = customtkinter.CTkButton(self, text= "Delete", command = controller.List_delete_selected, text_font=("TkHeadingtext_font", 20))
-        delete_selected_button.place(x=1260, y=150, anchor="e")
+        delete_selected_button = customtkinter.CTkButton(self, text= "Del multi", command = controller.List_delete_selected, text_font=("TkHeadingtext_font", 20))
+        delete_selected_button.place(x=1260, y=210, anchor="e")
 
         # Delete all Items Button
         delete_all_button = customtkinter.CTkButton(self, text = "Delete All", command=controller.List_delete_all, text_font=("TkHeadingtext_font", 20))
-        delete_all_button.place(x=1260, y=210, anchor="e")
+        delete_all_button.place(x=1260, y=270, anchor="e")
 
-        # AddItems Page Button
+        # Clear all Entry Boxes Button
+        clear_button = customtkinter.CTkButton(self, text = "Clear Entry", command=controller.clear_entries, text_font=("TkHeadingtext_font", 20), width = 180)
+        clear_button.place(x=1260, y=550, anchor="e")
+
+        # Update Items Button
+        update_button = customtkinter.CTkButton(self, text = "Update Item", command=controller.update_record, text_font=("TkHeadingtext_font", 20), width = 180)
+        update_button.place(x=1260, y=600, anchor="e")
+
+        oid_label = customtkinter.CTkLabel(self, text = "ID:", text_font=("TkHeadingtext_font", 20))
+        oid_label.place(x=120, y=210, anchor="e")
+        oid_entry = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20))
+        oid_entry.place(x=220, y=210, anchor="e")
+
+        name_label = customtkinter.CTkLabel(self, text = "Name:", text_font=("TkHeadingtext_font", 18))
+        name_label.place(x=380, y=550, anchor="e")
+        name_entry = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
+        name_entry.place(x=600, y=550, anchor="e")
+
+        brand_label = customtkinter.CTkLabel(self, text = "Brand:", text_font=("TkHeadingtext_font", 18))
+        brand_label.place(x=825, y=550, anchor="e")
+        brand_entry = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
+        brand_entry.place(x=1007, y=550, anchor="e")
+
+        exdate_label = customtkinter.CTkLabel(self, text = "Exp. Date: ", text_font=("TkHeadingtext_font", 18))
+        exdate_label.place(x=404, y=600, anchor="e")
+        exdate_entry = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
+        exdate_entry.place(x=600, y=600, anchor="e")
+
+        amount_label = customtkinter.CTkLabel(self, text = "Amount: ", text_font=("TkHeadingtext_font", 18))
+        amount_label.place(x=825, y=600, anchor="e")
+        amount_entry = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
+        amount_entry.place(x=1007, y=600, anchor="e")
+
+        # AddItems Page customtkinter.CTkButton
         AddItems_page_button = customtkinter.CTkButton(self, text= "Add Items",text_font=("TkHeadingtext_font", 25) , cursor="hand2",
-                width =310, command=lambda:controller.show_frame("AddItems"))
+                width =310, command=controller.List_add_record)
         AddItems_page_button.place(x=475, y=655)
 
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:controller.show_frame("MainMenu")
             ).place(x=1260, y=700, anchor="se")
+
+        # Bind the treeview
+        List.bind("<ButtonRelease-1>", controller.select_record)
 
 
 class AddItems(customtkinter.CTkFrame):
@@ -519,10 +788,10 @@ class AddItems(customtkinter.CTkFrame):
 
         global List
         global count
-        global name_entry
-        global brand_entry
-        global exdate_entry
-        global remain_entry
+        # global name_entry
+        # global brand_entry
+        # global exdate_entry
+        # global amount_entry
 
         logo_img = ImageTk.PhotoImage(file="assets/images/WVU_Logo.png")
         logo_widget = customtkinter.CTkLabel(self, image=logo_img )
@@ -555,9 +824,9 @@ class AddItems(customtkinter.CTkFrame):
         exdate_entry.grid(row=1, column=2)
         exdate_entry.bind('<FocusIn>', controller.entry_callback)
 
-        # remain_entry = customtkinter.CTkEntry(Design_frame1, text_font=("yu gothic ui", 15))
-        # remain_entry.grid(row=1, column=3)
-        # remain_entry.bind('<FocusIn>', controller.entry_callback)
+        amount_entry = customtkinter.CTkEntry(Design_frame1, text_font=("yu gothic ui", 15))
+        amount_entry.grid(row=1, column=3, padx =20)
+        amount_entry.bind('<FocusIn>', controller.entry_callback)
 
         # Label for choosing the sensor
         Design_frame2 = customtkinter.CTkFrame(self , height=33, highlightthickness=0, borderwidth=0)
@@ -590,7 +859,7 @@ class AddItems(customtkinter.CTkFrame):
 
         # The Add Button
         add_record = customtkinter.CTkButton(self, text= "Add",text_font=("TkHeadingtext_font", 25) ,  cursor="hand2",
-                width =310, command=controller.add_record)
+                width =310, command=controller.List_add_record)
         add_record.place(x=475, y=655)
         # The Back Button
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20)  , cursor="hand2",
@@ -893,7 +1162,7 @@ class Settings(customtkinter.CTkFrame):
         label_mode = customtkinter.CTkLabel(right_frame, text="Theme:", text_font=("TkHeadingtext_font", 20))
         label_mode.place(relx=0.33, rely=0.8, anchor=tkinter.CENTER)
 
-        optionmenu = customtkinter.CTkOptionMenu(right_frame, values=["System", "Dark", "Light"], text_font=("TkHeadingtext_font", 15),
+        optionmenu = customtkinter.CTkOptionMenu(right_frame, values=["Light", "Dark"], text_font=("TkHeadingtext_font", 15),
                                             width = 200, height = 30, command=controller.change_appearance_mode)
         optionmenu.place(relx=0.59, rely=0.8, anchor=tkinter.CENTER)
 
