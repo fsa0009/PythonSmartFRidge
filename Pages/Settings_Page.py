@@ -63,12 +63,12 @@ class Settings(customtkinter.CTkFrame):
         button_4.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
 
 
-        label_mode = customtkinter.CTkLabel(right_frame, text="Theme:", text_font=("TkHeadingtext_font", 20))
-        label_mode.place(relx=0.33, rely=0.8, anchor=tkinter.CENTER)
-
-        optionmenu = customtkinter.CTkOptionMenu(right_frame, values=["System", "Dark", "Light"], text_font=("TkHeadingtext_font", 15),
-                                            width = 200, height = 30, command=controller.change_appearance_mode)
-        optionmenu.place(relx=0.59, rely=0.8, anchor=tkinter.CENTER)
+        # label_mode = customtkinter.CTkLabel(right_frame, text="Theme:", text_font=("TkHeadingtext_font", 20))
+        # label_mode.place(relx=0.33, rely=0.8, anchor=tkinter.CENTER)
+        #
+        # optionmenu = customtkinter.CTkOptionMenu(right_frame, values=["System", "Dark", "Light"], text_font=("TkHeadingtext_font", 15),
+        #                                     width = 200, height = 30, command=controller.change_appearance_mode)
+        # optionmenu.place(relx=0.59, rely=0.8, anchor=tkinter.CENTER)
 
 
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",

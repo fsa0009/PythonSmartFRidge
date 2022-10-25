@@ -19,6 +19,9 @@ class SmartFridgeApp(customtkinter.CTk):
         window.grid_rowconfigure(0, weight=1)
         window.grid_columnconfigure(0, weight=1)
 
+        # this data is shared among all the classes
+        self.app_login_cred = {'email': StringVar(), 'idToken': StringVar()}
+
         self.frames = {}
         for F in (Login, Register, MainMenu, ItemsList, AddItems, RecipeSuggestions, SuggestedShopping, Settings):
             page_name = F.__name__
@@ -38,6 +41,7 @@ class SmartFridgeApp(customtkinter.CTk):
                                                     foreground="white", relief="flat",  rowheight=35, fieldbackground="#343638", bordercolor="#343638", borderwidth=0)
         style.map("Treeview.Heading", background=[('active', '#3484F0')])
 
+        self.change_mode()
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
@@ -62,9 +66,17 @@ class SmartFridgeApp(customtkinter.CTk):
         if choice == 'yes':
             subprocess.call(['sudo', 'shutdown', '-r', '-t 5', 'now'])
 
-    def change_appearance_mode(self, new_appearance_mode):
-        customtkinter.set_appearance_mode(new_appearance_mode)
 
+    def change_appearance_mode(self):
+        if switch.get() == 1:
+            customtkinter.set_appearance_mode("dark")
+        else:
+            customtkinter.set_appearance_mode("light")
+
+    def change_mode(self):
+        global switch
+        switch = customtkinter.CTkSwitch(self, text="Dark Mode", command = self.change_appearance_mode)
+        switch.place(x=20, y=680)
 
 ############ Initiallize app ############
 if __name__ == "__main__":
