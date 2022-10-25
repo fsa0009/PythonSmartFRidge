@@ -10,6 +10,7 @@ customtkinter.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark"
 customtkinter.set_default_color_theme("assets/themes/wvu-dark.json")
 #customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue", "sweetkind"
 
+
 # Main Class
 class SmartFridgeApp(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
@@ -35,10 +36,11 @@ class SmartFridgeApp(customtkinter.CTk):
         # Styling the treeviews
         style = ttk.Style()
         style.theme_use("default")
-        style.configure("Treeview", font=("", 15), background="#2a2d2e", foreground="white", rowheight=35, fieldbackground="#343638", bordercolor="#343638", borderwidth=0)
+        style.configure("Treeview", font=("", 15), background="#2a2d2e", foreground="white", rowheight=35, fieldbackground="#343638",
+                        bordercolor="#343638", borderwidth=0)
         style.map('Treeview', background=[('selected', '#22559b')])
-        style.configure("Treeview.Heading", font=('Arial', 15, 'bold'), background="#565b5e",
-                                                    foreground="white", relief="flat",  rowheight=35, fieldbackground="#343638", bordercolor="#343638", borderwidth=0)
+        style.configure("Treeview.Heading", font=('Arial', 15, 'bold'), background="#565b5e", foreground="white", relief="flat",
+                        rowheight=35, fieldbackground="#343638", bordercolor="#343638", borderwidth=0)
         style.map("Treeview.Heading", background=[('active', '#3484F0')])
 
         self.change_mode()
@@ -75,17 +77,17 @@ class SmartFridgeApp(customtkinter.CTk):
 
     def change_mode(self):
         global switch
-        switch = customtkinter.CTkSwitch(self, text="Dark Mode", command = self.change_appearance_mode)
+        switch = customtkinter.CTkSwitch(self, text="Dark Mode", bg_color= ("#001532", "gray20"), command = self.change_appearance_mode)
         switch.place(x=20, y=680)
 
-############ Initiallize app ############
+######################################### Initiallize app ######################################
 if __name__ == "__main__":
     root = SmartFridgeApp()
     root.title("Smart Fridge 1.8")
     root.geometry("1280x720")
     root.resizable(0, 0)
     root.attributes('-topmost', 0)
-    ########################## Ignore This ###############################
+    ########################## positioning window in the center ###############################
     # Gets the requested values of the height and widht.
     windowWidth = root.winfo_reqwidth()
     windowHeight = root.winfo_reqheight()
@@ -94,6 +96,6 @@ if __name__ == "__main__":
     positionDown = int(root.winfo_screenheight()/3.5 - windowHeight/2)
     # Positions the window in the center of the page.
     root.geometry("+{}+{}".format(positionRight, positionDown))
-    ####################################################################
+    ###########################################################################################
     #root.attributes('-fullscreen', 1)
     root.mainloop()

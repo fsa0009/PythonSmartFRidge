@@ -51,12 +51,13 @@ class Register(customtkinter.CTkFrame):
 
 
         # Tap Login button
-        login_button = customtkinter.CTkButton(self, text='Login', text_font=("yu gothic ui bold", 12), fg_color= ("#001532", "#2a2d2e"),
+        login_button = customtkinter.CTkButton(self, text='Login', text_font=("yu gothic ui bold", 12), fg_color= ("#001532", "gray20"),
                               borderwidth=0,   cursor='hand2', width = 2, command=lambda: controller.show_frame("Login"),)
         login_button.place(x=810, y=175)
 
         # Tap Signup button
-        SignUp_button = customtkinter.CTkButton(self, text='Sign up', text_font=("yu gothic ui bold", 12), borderwidth=0, fg_color= ("#001532", "#2a2d2e"),  cursor='hand2', width = 2)
+        SignUp_button = customtkinter.CTkButton(self, text='Sign up', text_font=("yu gothic ui bold", 12), borderwidth=0,
+                                fg_color= ("#001532", "gray20"),  cursor='hand2', width = 2)
         SignUp_button.place(x=1000, y=175)
         SignUp_line = Canvas(self, width=60, height=5, bg='#ebac00')
         SignUp_line.place(x=1005, y=203)

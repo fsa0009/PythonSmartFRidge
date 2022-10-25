@@ -11,13 +11,14 @@ import os
 import tkinter as objTK
 import datetime as objDateTime
 import customtkinter
+import pyrebase
+from Pages.Login_Page import FirebaseConfig
 
 # Items List Page Class
 class ItemsList(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )
         self.controller = controller
-
         global List
         global count
 
@@ -58,6 +59,7 @@ class ItemsList(customtkinter.CTkFrame):
             ["E", "F", "12-05-2022", "50%"],
             ["F", "E", "12-03-2022", "100%"]
             ]
+
         # Adding the headers with the "sort by" function
         for record in range(len(List_header)):
             strHdr = List_header[record]
@@ -66,6 +68,7 @@ class ItemsList(customtkinter.CTkFrame):
         # Inserting the data
         for record in range(len(List_data)):
             List.insert("", "end", values=List_data[record])
+            # FirebaseConfig().pushdb(record)
 
         # Delete Selected Items Button
         delete_selected_button = customtkinter.CTkButton(self, text= "Delete", command = List_delete_selected, text_font=("TkHeadingtext_font", 20))

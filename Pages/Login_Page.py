@@ -3,7 +3,7 @@ from tkinter import ttk
 import tkinter
 from PIL import ImageTk, Image
 from tkinter import messagebox
-from tkinter import ttk as objTTK
+# from tkinter import ttk as objTTK
 from functools import partial
 import tkinter as tk
 import subprocess
@@ -13,13 +13,14 @@ import datetime as objDateTime
 import customtkinter
 import pyrebase
 
+global test_token
 
 class FirebaseConfig:
     def __init__(self):
         self.firebaseConfig = {
               "apiKey": "AIzaSyDEB5qdpI_D371iICJlHKfU67Op1e5JVeA",
               "authDomain": "smartfridgeapp-wvu.firebaseapp.com",
-              "databaseURL": "https://smartfridgeapp-wvu-default-rtdb.firebaseio.com",
+              "databaseURL": "https://smartfridgeapp-wvu-default-rtdb.firebaseio.com/my-info/cn9uHd7h4FOuX1fr9wOXw8JZwkz1",
               "projectId": "smartfridgeapp-wvu",
               "storageBucket": "smartfridgeapp-wvu.appspot.com",
               "messagingSenderId": "21386787655",
@@ -29,7 +30,7 @@ class FirebaseConfig:
         self.firebase = pyrebase.initialize_app(self.firebaseConfig)
         self.auth = self.firebase.auth()
         self.storage = self.firebase.storage()
-
+        self.pushdb()
     def register(self, username, password):
         try:
             user = self.auth.create_user_with_email_and_password(username, password)
@@ -51,6 +52,12 @@ class FirebaseConfig:
             return
         except:
              return False
+
+    def pushdb(self):
+        data = {"name": "test 'test' test"}
+        db = self.firebase.database()
+        db.child("my-info").child("cn9uHd7h4FOuX1fr9wOXw8JZwkz1").child("Name")
+        db.child("Name").update(data)
 
 # Login Page Class
 class Login(customtkinter.CTkFrame):
@@ -92,13 +99,14 @@ class Login(customtkinter.CTkFrame):
         label_1.place(relx=0.44, rely=0.2, anchor=tkinter.CENTER)
 
         # Tap Login button
-        login_button = customtkinter.CTkButton(self, text='Login', text_font=("yu gothic ui bold", 12), borderwidth=0, fg_color= ("#001532", "#2a2d2e"),  cursor='hand2', width = 2)
+        login_button = customtkinter.CTkButton(self, text='Login', text_font=("yu gothic ui bold", 12), borderwidth=0,
+                                                fg_color= ("#001532", "gray20"),  cursor='hand2', width = 2)
         login_button.place(x=810, y=175)
         login_line = Canvas(self, width=60, height=5, bg='#ebac00')
         login_line.place(x=810, y=203)
 
         # Tap Signup button
-        SignUp_button = customtkinter.CTkButton(self, text='Sign up', text_font=("yu gothic ui bold", 12), fg_color= ("#001532", "#2a2d2e"),
+        SignUp_button = customtkinter.CTkButton(self, text='Sign up', text_font=("yu gothic ui bold", 12), fg_color= ("#001532", "gray20"), #2a2d2e
                               borderwidth=0, cursor='hand2', width = 2,  command=lambda: controller.show_frame("Register"))
         SignUp_button.place(x=1000, y=175)
 
@@ -127,6 +135,7 @@ class Login(customtkinter.CTkFrame):
                 response = FirebaseConfig().login(username_entry.get(), password_entry.get())
                 if response:
                     tok = response['idToken']
+
                     complete_account_info = FirebaseConfig().auth.get_account_info(tok)
                     email_verified = complete_account_info['users'][0]['emailVerified']
                     if email_verified:
@@ -183,7 +192,8 @@ class Login(customtkinter.CTkFrame):
                     command = call_reset_pwd).place(x=720, y=68, anchor=tkinter.CENTER)
 
         # reset_pwd_label = Label(right_frame, text="Forgot Password?", cursor="hand2", bg="#001532", fg="white")
-        reset_pwd_button = customtkinter.CTkButton(right_frame, text='Forgot Password?', fg_color= ("#001532", "#2a2d2e"), borderwidth=0, cursor='hand2', width = 2,  command=pwd_reset)
+        reset_pwd_button = customtkinter.CTkButton(right_frame, text='Forgot Password?', fg_color= ("#001532", "gray20"),
+                                borderwidth=0, cursor='hand2', width = 2,  command=pwd_reset)
         reset_pwd_button.place(x=310, y=388)
 
 
