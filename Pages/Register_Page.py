@@ -11,10 +11,9 @@ import os
 import tkinter as objTK
 import datetime as objDateTime
 import customtkinter
-import pyrebase
+import sqlite3
 from Pages.Login_Page import FirebaseConfig
 
-# Register Page Class
 class Register(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )

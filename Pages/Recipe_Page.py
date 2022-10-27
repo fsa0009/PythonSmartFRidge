@@ -11,8 +11,9 @@ import os
 import tkinter as objTK
 import datetime as objDateTime
 import customtkinter
+import sqlite3
 
-# Recipe Suggestions Page Class
+
 class RecipeSuggestions(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master)

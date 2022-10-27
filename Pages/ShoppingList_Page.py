@@ -11,15 +11,15 @@ import os
 import tkinter as objTK
 import datetime as objDateTime
 import customtkinter
+import sqlite3
 
-# Suggested Shopping Page Class
+
 class SuggestedShopping(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )
         self.controller = controller
 
         global ShoppingList
-
 
         logo_img = ImageTk.PhotoImage(file="assets/images/WVU_Logo.png")
         logo_widget = customtkinter.CTkLabel(self, image=logo_img )
@@ -88,24 +88,19 @@ class SuggestedShopping(customtkinter.CTkFrame):
         delete_selected_button.place(x=1260, y=150, anchor="e")
 
         # Delete all Items customtkinter.CTkButton
-        delete_all_button = customtkinter.CTkButton(self, text = "Delete All", command = ShoppingList_delete_all, text_font=("TkHeadingtext_font", 20))
+        delete_all_button = customtkinter.CTkButton(self, text = "Delete All", command=ShoppingList_delete_all, text_font=("TkHeadingtext_font", 20))
         delete_all_button.place(x=1260, y=210, anchor="e")
-
-
 
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:controller.show_frame("MainMenu")
             ).place(x=1260, y=700, anchor="se")
 
-
         def ShoppingList_add_popup(): # add item pop up
             pop = customtkinter.CTkToplevel()
             pop.title("Add items to your Shopping list")
             pop.geometry("830x130")
-
             global name_entry1
             global brand_entry1
-
             ########################## Ignore This ##############################
             # Gets the requested values of the height and widht.
             windowWidth = self.winfo_reqwidth()
@@ -135,11 +130,10 @@ class SuggestedShopping(customtkinter.CTkFrame):
 
         # The Add customtkinter.CTkButton
         shopping_add = customtkinter.CTkButton(self, text= "Add",text_font=("TkHeadingtext_font", 25) ,  cursor="hand2",
-                width =310, command = ShoppingList_add_popup)
+                width =310, command=ShoppingList_add_popup)
         shopping_add.place(x=475, y=655)
 
 
-# Functions for ShoppingList Page
 def ShoppingList_delete_all(): # Delets all items
     for values in ShoppingList.get_children():
         ShoppingList.delete(values)
