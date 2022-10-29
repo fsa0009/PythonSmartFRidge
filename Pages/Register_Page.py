@@ -18,74 +18,73 @@ class Register(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )
         self.controller = controller
-
+        self.grid_columnconfigure(0, weight = 1)
+        self.grid_columnconfigure(1, weight = 1)
+        self.grid_rowconfigure(0, weight = 1)
+        
         username = StringVar()
         password = StringVar()
         verify_password = StringVar()
 
         # Slicing the page
-        frame = customtkinter.CTkFrame(master=self, width=1280, height=720, corner_radius=0)
-        frame.place(relx=0, rely=0)
+        left_frame = customtkinter.CTkFrame(master=self, corner_radius=0)#, fg_color = "red")
+        left_frame.grid(row = 0, column = 0, sticky = "nesw")
 
-        left_frame = customtkinter.CTkFrame(master=self, width=640, height=720, corner_radius=0)
-        left_frame.place(relx=0.5, rely=0.5, anchor=tkinter.E)
+        right_frame = customtkinter.CTkFrame(master=self, corner_radius=0)#,  fg_color = "green")
+        right_frame.grid(row = 0, column = 1, sticky = "nesw")
 
-        right_frame = customtkinter.CTkFrame(master=self, width=640, height=720, corner_radius=0)
-        right_frame.place(relx=1, rely=0.5, anchor=tkinter.E)
-
-        # Corner Picture (logo)
-        logo_img = ImageTk.PhotoImage(file="assets/images/WVU_Logo.png")
-        logo_widget = customtkinter.CTkLabel(left_frame, image=logo_img )
-        logo_widget.image = logo_img
-        logo_widget.place(x=0, y=20)
 
         # Picture on left side
-        Welcome_img = ImageTk.PhotoImage(file="assets/images/WVU_Welcome.png")
-        Welcome_widget = customtkinter.CTkLabel(left_frame, image=Welcome_img )
+        Welcome_img = Image.open("assets/images/WVU_Welcome.png")
+        Welcome_img = Welcome_img.resize((500, 500), Image.ANTIALIAS)   
+        Welcome_img = ImageTk.PhotoImage(Welcome_img)
+        Welcome_widget = customtkinter.CTkLabel(left_frame, image=Welcome_img)
         Welcome_widget.image = Welcome_img
-        Welcome_widget.place(relx=1, rely=0.5, anchor=tkinter.E)
+        Welcome_widget.pack(pady = (120, 0) ,anchor = "center")
 
-        label_1 = customtkinter.CTkLabel(right_frame, text='Smart Fridge GUI', text_font=('Arial', 20, 'bold'))
-        label_1.place(relx=0.44, rely=0.2, anchor=tkinter.CENTER)
+        label_1 = customtkinter.CTkLabel(right_frame, text='Smart Fridge GUI', text_font=("TkMenutext_font", 25, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
+        label_1.pack(pady = (150, 0))
 
+        tab_frame = customtkinter.CTkFrame(right_frame, corner_radius=0, width=260, height=40)#, fg_color = "green")
+        tab_frame.pack(pady = 20)
+        
+        # Tab Login button
+        login_button = customtkinter.CTkButton(tab_frame, text='Login', text_font=("yu gothic ui bold", 12), fg_color= ("#ebe7e4", "#122e54"), hover_color= ("#c6baba", "#1e3d6d"), 
+                                               text_color = ("#1e3d6d", "#ebe7e4"), borderwidth=0, cursor='hand2', width = 2, command=lambda: controller.show_frame("Login"))
+        login_button.place(anchor = "nw")
 
-        # Tap Login button
-        login_button = customtkinter.CTkButton(self, text='Login', text_font=("yu gothic ui bold", 12), fg_color= ("#001532", "gray20"),
-                              borderwidth=0,   cursor='hand2', width = 2, command=lambda: controller.show_frame("Login"),)
-        login_button.place(x=810, y=175)
-
-        # Tap Signup button
-        SignUp_button = customtkinter.CTkButton(self, text='Sign up', text_font=("yu gothic ui bold", 12), borderwidth=0,
-                                fg_color= ("#001532", "gray20"),  cursor='hand2', width = 2)
-        SignUp_button.place(x=1000, y=175)
-        SignUp_line = Canvas(self, width=60, height=5, bg='#ebac00')
-        SignUp_line.place(x=1005, y=203)
+        # Tab Signup button
+        SignUp_button = customtkinter.CTkButton(tab_frame, text='Sign up', text_font=("yu gothic ui bold", 12), borderwidth=0, text_color = ("#1e3d6d", "#ebe7e4"),
+                                fg_color= ("#ebe7e4", "#122e54"), hover_color= ("#c6baba", "#1e3d6d"),  cursor='hand2', width = 2)
+        SignUp_button.place(relx = 0.86, anchor= "n")
+        SignUp_line = Canvas(tab_frame, width=60, height=5, bg='#ebac00')
+        SignUp_line.place(relx = 0.75, rely = 0.7)
 
         # Username Entry
-        username_label = customtkinter.CTkLabel(right_frame, text='• Email', text_font=("yu gothic ui", 11, 'bold'))
-        username_label.place(x=127, y=230)
-        username_entry = Entry(right_frame, textvariable=username, font=("yu gothic ui", 15))
-        username_entry.place(x=174, y=260, width=256, height=34)
+        username_label = customtkinter.CTkLabel(right_frame, text='• Email', text_font=("yu gothic ui", 11, 'bold'), text_color = ("#1e3d6d", "#ebe7e4"))
+        username_label.pack(padx = (0, 212))
+        username_entry = Entry(right_frame, textvariable=username, font=("yu gothic ui", 15), width=23)
+        username_entry.pack(pady = (0, 20))
         username_entry.bind('<FocusIn>', controller.entry_callback)
 
         # Password Entry
-        password_label = customtkinter.CTkLabel(right_frame, text='• Password'  , text_font=("yu gothic ui", 11, 'bold'))
-        password_label.place(x=140, y=310)
-        password_entry = Entry(right_frame, textvariable=password, font=("yu gothic ui", 15), show='•')
-        password_entry.place(x=174, y=340, width=256, height=34)
+        password_label = customtkinter.CTkLabel(right_frame, text='• Password'  , text_font=("yu gothic ui", 11, 'bold'), text_color = ("#1e3d6d", "#ebe7e4"))
+        password_label.pack(padx = (0, 185))
+        password_entry = Entry(right_frame, textvariable=password, font=("yu gothic ui", 15), show='•', width=23)
+        password_entry.pack(pady = (0, 20))
         password_entry.bind('<FocusIn>', controller.entry_callback)
 
         # Verify password
-        verify_password_label = customtkinter.CTkLabel(right_frame, text='• Verify Password', text_font=("yu gothic ui", 11, 'bold'))
-        verify_password_label.place(x=162, y=390)
-        verify_password_entry = Entry(right_frame, textvariable=verify_password, font=("yu gothic ui", 15), show='•')
-        verify_password_entry.place(x=174, y=420, width=256, height=34)
+        verify_password_label = customtkinter.CTkLabel(right_frame, text='• Verify Password', text_font=("yu gothic ui", 11, 'bold'), text_color = ("#1e3d6d", "#ebe7e4"))
+        verify_password_label.pack(padx = (0, 140))
+        verify_password_entry = Entry(right_frame, textvariable=verify_password, font=("yu gothic ui", 15), show='•', width=23)
+        verify_password_entry.pack()
         verify_password_entry.bind('<FocusIn>', controller.entry_callback)
 
         # checkbutton for hiding and showing password
-        checkButton = customtkinter.CTkCheckBox(right_frame, text='show password',
-        command=lambda:[password_command0(), password_command()])
-        checkButton.place(x=174, y=470)
+        checkButton = customtkinter.CTkCheckBox(right_frame, text='show password', text_color = ("#1e3d6d", "#ebe7e4"), hover_color= ("#c6baba", "#1e3d6d"),
+                                                command=lambda:[password_command0(), password_command()])
+        checkButton.pack(padx = (0, 140), pady = 15)
 
         def register_user(): # Signup Process
             password_info = password.get()
@@ -114,26 +113,17 @@ class Register(customtkinter.CTkFrame):
 
         # Proceed Signup customtkinter.CTkButtons
         SignUp_button1 = customtkinter.CTkButton(right_frame, text='Sign Up', text_font=("yu gothic ui bold", 15),
-                           cursor='hand2', command=register_user)
-        SignUp_button1.place(x=174, y=510, width=256, height=50)
-
-        def change_mode():
-            if switch.get() == 1:
-                customtkinter.set_appearance_mode("dark")
-            else:
-                customtkinter.set_appearance_mode("light")
-
-        switch = customtkinter.CTkSwitch(left_frame, text="Dark Mode", command = change_mode)
-        switch.place(x=20, y=680)
+                           cursor='hand2', command=register_user, width=256, height=50)
+        SignUp_button1.pack()
 
         def password_command(): # show/passowrd for signup
             if password_entry.cget('show') == '•':
-                password_entry.config(show='')
+                password_entry.configure(show='')
             else:
-                password_entry.config(show='•')
+                password_entry.configure(show='•')
 
         def password_command0(): # show/passowrd for signup (verify password)
             if verify_password_entry.cget('show') == '•':
-                verify_password_entry.config(show='')
+                verify_password_entry.configure(show='')
             else:
-                verify_password_entry.config(show='•')
+                verify_password_entry.configure(show='•')

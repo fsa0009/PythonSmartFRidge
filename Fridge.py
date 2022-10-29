@@ -1,15 +1,12 @@
 from Pages.Login_Page import *
 from Pages.Register_Page import *
 from Pages.MainMenu_Page import *
-from Pages.ShoppingList_Page import *
 from Pages.Recipe_Page import *
 from Pages.Settings_Page import *
 
-
-customtkinter.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
+customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("assets/themes/wvu-dark.json")
 #customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue", "sweetkind"
-
 
 # Main Class
 class SmartFridgeApp(customtkinter.CTk):
@@ -22,9 +19,10 @@ class SmartFridgeApp(customtkinter.CTk):
 
         # this data is shared among all the classes
         self.app_login_cred = {'email': StringVar(), 'idToken': StringVar()} #, 'localid': StringVar()
-        
+
         self.frames = {}
-        for F in (Login, Register, MainMenu, ItemsList, RecipeSuggestions, SuggestedShopping, Settings):
+        for F in (Login, Register, MainMenu, PantryList, OptionsPantryList,
+                  NonPantryList, OptionsNonPantryList, SuggestedShopping, OptionsSuggestedShopping, RecipeSuggestions, Settings):
             page_name = F.__name__
             global frame
             frame = F(master=window, controller=self)
@@ -33,17 +31,18 @@ class SmartFridgeApp(customtkinter.CTk):
 
         self.show_frame("Login")
 
-        # Styling the treeviews
+        #Styling the treeviews
         style = ttk.Style()
         style.theme_use("default")
-        style.configure("Treeview", font=("", 15), background="#2a2d2e", foreground="white", rowheight=35, fieldbackground="#343638", bordercolor="#343638", borderwidth=0)
+        style.configure("Treeview", font=("", 20), background="#2a2d2e", foreground="white", rowheight=35, fieldbackground="#343638", bordercolor="#343638", borderwidth=0)
         style.map('Treeview', background=[('selected', '#22559b')])
-        style.configure("Treeview.Heading", font=('Arial', 15, 'bold'), background="#565b5e",
+        style.configure("Treeview.Heading", font=('Arial', 20, 'bold'), background="#565b5e",
                                                     foreground="white", relief="flat",  rowheight=35, fieldbackground="#343638", bordercolor="#343638", borderwidth=0)
         style.map("Treeview.Heading", background=[('active', '#3484F0')])
 
         self.change_mode()
-        
+
+
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
@@ -54,7 +53,7 @@ class SmartFridgeApp(customtkinter.CTk):
     # Functions for Settings Page
     def Reset_prompt(self): # Popup confirming reset
         choice = messagebox.askquestion("Reset", "Are you sure you want to reset? \n Proceeding will sign you out")
-        if choice == 'yes':
+        if choice == 'yes':          
             self.show_frame("Login")
 
     def Shutdown_prompt(self): # Popup confirming shutdown
@@ -75,15 +74,16 @@ class SmartFridgeApp(customtkinter.CTk):
 
     def change_mode(self):
         global switch
-        switch = customtkinter.CTkSwitch(self, text="Dark Mode", bg_color= ("#001532", "gray20"), command = self.change_appearance_mode)
-        switch.place(x=20, y=680)     
-        
+        switch = customtkinter.CTkSwitch(self, text="Dark Mode", text_color = ("#1e3d6d", "#ebe7e4"), command = self.change_appearance_mode)
+        switch.place(relx=0.02, rely=0.97, anchor= "sw")
+        switch.select(1)
+
 ############ Initiallize app ############
 if __name__ == "__main__":
     root = SmartFridgeApp()
-    root.title("Smart Fridge 1.8")
+    root.title("Smart Fridge 2.0")
     root.geometry("1280x720")
-    root.resizable(0, 0)
+    #root.resizable(0, 0)
     root.attributes('-topmost', 0)
 
     ########################## Ignore This ###############################

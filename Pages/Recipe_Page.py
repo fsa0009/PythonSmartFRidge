@@ -33,8 +33,8 @@ class RecipeSuggestions(customtkinter.CTkFrame):
         my_scrollbar.pack(side = RIGHT, fill = Y)
 
         # 4 Configure the Canvas
-        my_canvas.config(yscrollcommand = my_scrollbar.set)
-        my_canvas.bind('<Configure>', lambda e: my_canvas.config(scrollregion = my_canvas.bbox("all")))
+        my_canvas.configure(yscrollcommand = my_scrollbar.set)
+        my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion = my_canvas.bbox("all")))
 
         # 5 Create anotehr frame inside the Canvas (Content Frame)
         content_frame = customtkinter.CTkFrame(my_canvas)
@@ -47,10 +47,13 @@ class RecipeSuggestions(customtkinter.CTkFrame):
         top_frame = customtkinter.CTkFrame(self, width=1260, height=130)
         top_frame.place(x=0, y = 0)
 
-        logo_img = ImageTk.PhotoImage(file="assets/images/WVU_Logo.png")
-        logo_widget = customtkinter.CTkLabel(top_frame, image=logo_img )
+        # Corner Picture (logo)
+        logo_img = Image.open("assets/images/WVU_Welcome.png")
+        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)
+        logo_img = ImageTk.PhotoImage(logo_img)
+        logo_widget = customtkinter.CTkLabel(self, image=logo_img)
         logo_widget.image = logo_img
-        logo_widget.place(x=0, y=20)
+        logo_widget.place(relx=0.05, rely=0.09, anchor= "center")
 
         customtkinter.CTkLabel(top_frame, text="Recipe Suggestions" , text_font=("TkMenutext_font", 40)).place(x=415, y = 40)
         ###################################################################################################################
@@ -60,8 +63,9 @@ class RecipeSuggestions(customtkinter.CTkFrame):
         bottom_frame = customtkinter.CTkFrame(self, width=1260, height=100)
         bottom_frame.place(x=0, y = 650)
 
-        customtkinter.CTkButton(bottom_frame, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
-                command=lambda:controller.show_frame("MainMenu")).place(x=1100, y=10)
+        customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
+                command=lambda:controller.show_frame("MainMenu")
+            ).place(relx=0.98, rely=0.97, anchor= "se")
         ###################################################################################################################
 
 

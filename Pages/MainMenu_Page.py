@@ -11,48 +11,51 @@ import os
 import tkinter as objTK
 import datetime as objDateTime
 import customtkinter
-import sqlite3
-
 
 class MainMenu(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )
         self.controller = controller
-
+        self.grid_columnconfigure(0, weight = 1)
+        self.grid_columnconfigure(1, weight = 1)
+        self.grid_rowconfigure(0, weight = 1)
+        
         # Slicing the page
-        left_frame = customtkinter.CTkFrame(master=self, width=640, height=720, corner_radius=0)
-        left_frame.place(relx=0.5, rely=0.5, anchor=tkinter.E)
+        left_frame = customtkinter.CTkFrame(master=self, corner_radius=0)#, fg_color = "red")
+        left_frame.grid(row = 0, column = 0, sticky = "nesw")
 
-        right_frame = customtkinter.CTkFrame(master=self, width=640, height=720, corner_radius=0)
-        right_frame.place(relx=1, rely=0.5, anchor=tkinter.E)
-
-        # Corner Picture (logo)
-        logo_img = ImageTk.PhotoImage(file="assets/images/WVU_Logo.png")
-        logo_widget = customtkinter.CTkLabel(left_frame, image=logo_img )
-        logo_widget.image = logo_img
-        logo_widget.place(x=0, y=20)
+        right_frame = customtkinter.CTkFrame(master=self, corner_radius=0)#,  fg_color = "green")
+        right_frame.grid(row = 0, column = 1, sticky = "nesw")
 
         # Picture on left side
-        Welcome_img = ImageTk.PhotoImage(file="assets/images/WVU_Welcome.png")
-        Welcome_widget = customtkinter.CTkLabel(left_frame, image=Welcome_img )
+        Welcome_img = Image.open("assets/images/WVU_Welcome.png")
+        Welcome_img = Welcome_img.resize((500, 500), Image.ANTIALIAS)   
+        Welcome_img = ImageTk.PhotoImage(Welcome_img)
+        Welcome_widget = customtkinter.CTkLabel(left_frame, image=Welcome_img)
         Welcome_widget.image = Welcome_img
-        Welcome_widget.place(relx=1, rely=0.5, anchor=tkinter.E)
+        Welcome_widget.pack(pady = (120, 0) ,anchor = "center")
 
-        label_1 = customtkinter.CTkLabel(right_frame, text='Main Menu', text_font=("TkMenutext_font", 50))
-        label_1.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
+        settings_image = ImageTk.PhotoImage(file="assets/images/settings.png")  #122e54
 
-        button_1 = customtkinter.CTkButton(right_frame, text="List of Items", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
-                                            width = 350, command=lambda:controller.show_frame("ItemsList"))
-        button_1.place(relx=0.5, rely=0.4, anchor=tkinter.CENTER)
+        label_1 = customtkinter.CTkLabel(right_frame, text='Main Menu', text_font=("TkMenutext_font", 50), text_color = ("#1e3d6d", "#ebe7e4"))
+        label_1.pack(pady = (110, 80))
 
-        button_2 = customtkinter.CTkButton(right_frame, text="Recipe Suggestions", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
-                                            width = 350, command=lambda:controller.show_frame("RecipeSuggestions"))
-        button_2.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+        button_1 = customtkinter.CTkButton(right_frame, text="Pantry Items", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
+                                            width = 350, command=lambda:controller.show_frame("PantryList"))
+        button_1.pack(pady = (0,30))
+
+        button_2 = customtkinter.CTkButton(right_frame, text="Non-Pantry Items", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
+                                            width = 350, command=lambda:controller.show_frame("NonPantryList"))
+        button_2.pack()
 
         button_3 = customtkinter.CTkButton(right_frame, text="Shopping List", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
                                             width = 350, command=lambda:controller.show_frame("SuggestedShopping"))
-        button_3.place(relx=0.5, rely=0.6, anchor=tkinter.CENTER)
+        button_3.pack(pady = 30)
 
-        button_4 = customtkinter.CTkButton(right_frame, text="Settings", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
-                                            width = 350, command=lambda:controller.show_frame("Settings"))
-        button_4.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
+        button_2 = customtkinter.CTkButton(right_frame, text="Recipes", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
+                                            width = 350, command=lambda:controller.show_frame("RecipeSuggestions"))
+        button_2.pack()
+        
+        button_4 = customtkinter.CTkButton(right_frame, image=settings_image,  text="", width=60, height=60, corner_radius=10,  fg_color= ("#122e54", "#122e54"),
+                                                                        hover_color= ("#1e3d6d", "#122e54"), command=lambda:controller.show_frame("Settings"))
+        button_4.place(relx=0.99, rely=0.99, anchor= "se")

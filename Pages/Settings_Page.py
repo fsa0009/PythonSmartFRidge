@@ -11,59 +11,54 @@ import os
 import tkinter as objTK
 import datetime as objDateTime
 import customtkinter
-import sqlite3
-
 
 class Settings(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )
         self.controller = controller
-
+        self.grid_columnconfigure(0, weight = 1)
+        self.grid_columnconfigure(1, weight = 1)
+        self.grid_rowconfigure(0, weight = 1)
+        
         # Slicing the page
-        left_frame = customtkinter.CTkFrame(master=self, width=640, height=720, corner_radius=0)
-        left_frame.place(relx=0.5, rely=0.5, anchor=tkinter.E)
+        left_frame = customtkinter.CTkFrame(master=self, corner_radius=0)#, fg_color = "red")
+        left_frame.grid(row = 0, column = 0, sticky = "nesw")
 
-        right_frame = customtkinter.CTkFrame(master=self, width=640, height=720, corner_radius=0)
-        right_frame.place(relx=1, rely=0.5, anchor=tkinter.E)
-
-
-        # Corner Picture (logo)
-        logo_img = ImageTk.PhotoImage(file="assets/images/WVU_Logo.png")
-        logo_widget = customtkinter.CTkLabel(left_frame, image=logo_img )
-        logo_widget.image = logo_img
-        logo_widget.place(x=0, y=20)
+        right_frame = customtkinter.CTkFrame(master=self, corner_radius=0)#,  fg_color = "green")
+        right_frame.grid(row = 0, column = 1, sticky = "nesw")
 
         # Picture on left side
-        Welcome_img = ImageTk.PhotoImage(file="assets/images/WVU_Welcome.png")
-        Welcome_widget = customtkinter.CTkLabel(left_frame, image=Welcome_img )
+        Welcome_img = Image.open("assets/images/WVU_Welcome.png")
+        Welcome_img = Welcome_img.resize((500, 500), Image.ANTIALIAS)   
+        Welcome_img = ImageTk.PhotoImage(Welcome_img)
+        Welcome_widget = customtkinter.CTkLabel(left_frame, image=Welcome_img)
         Welcome_widget.image = Welcome_img
-        Welcome_widget.place(relx=1, rely=0.5, anchor=tkinter.E)
+        Welcome_widget.pack(pady = (120, 0) ,anchor = "center")
 
 
-        label_1 = customtkinter.CTkLabel(right_frame, text='Settings', text_font=("TkMenutext_font", 50))
-        label_1.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
+        label_1 = customtkinter.CTkLabel(right_frame, text='Settings', text_font=("TkMenutext_font", 50), text_color = ("#1e3d6d", "#ebe7e4"))
+        label_1.pack(pady = (110, 80))
 
 
         button_1 = customtkinter.CTkButton(right_frame, text="Reset", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
                                             width = 350, command=controller.Reset_prompt)
-        button_1.place(relx=0.5, rely=0.4, anchor=tkinter.CENTER)
+        button_1.pack(pady = (0,30))
 
 
         button_2 = customtkinter.CTkButton(right_frame, text="Shutdown", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
                                             width = 350, command=controller.Shutdown_prompt)
-        button_2.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+        button_2.pack()
 
 
         button_3 = customtkinter.CTkButton(right_frame, text="Reboot", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
                                             width = 350, command=controller.Restart_prompt)
-        button_3.place(relx=0.5, rely=0.6, anchor=tkinter.CENTER)
+        button_3.pack(pady = 30)
 
 
         button_4 = customtkinter.CTkButton(right_frame, text="Exit Interface", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
                                             width = 350,  command=controller.destroy)
-        button_4.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
-
+        button_4.pack()
 
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:controller.show_frame("MainMenu")
-            ).place(x=1260, y=700, anchor="se")
+            ).place(relx=0.98, rely=0.97, anchor= "se")
