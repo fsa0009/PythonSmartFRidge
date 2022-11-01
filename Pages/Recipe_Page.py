@@ -1,17 +1,4 @@
-from tkinter import *
-from tkinter import ttk
-import tkinter
-from PIL import ImageTk, Image
-from tkinter import messagebox
-from tkinter import ttk as objTTK
-from functools import partial
-import tkinter as tk
-import subprocess
-import os
-import tkinter as objTK
-import datetime as objDateTime
-import customtkinter
-import sqlite3
+from Pages import *
 
 
 class RecipeSuggestions(customtkinter.CTkFrame):
@@ -48,14 +35,14 @@ class RecipeSuggestions(customtkinter.CTkFrame):
         top_frame.place(x=0, y = 0)
 
         # Corner Picture (logo)
-        logo_img = Image.open("assets/images/WVU_Welcome.png")
+        logo_img = Image.open("assets/images/WVU.png")
         logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)
         logo_img = ImageTk.PhotoImage(logo_img)
         logo_widget = customtkinter.CTkLabel(self, image=logo_img)
         logo_widget.image = logo_img
         logo_widget.place(relx=0.05, rely=0.09, anchor= "center")
 
-        customtkinter.CTkLabel(top_frame, text="Recipe Suggestions" , text_font=("TkMenutext_font", 40)).place(x=415, y = 40)
+        customtkinter.CTkLabel(top_frame, text="Recipe Suggestions" , text_font=("TkMenutext_font", 40), text_color = ("#1e3d6d", "#ebe7e4")).place(x=415, y = 40)
         ###################################################################################################################
 
 
@@ -73,35 +60,35 @@ class RecipeSuggestions(customtkinter.CTkFrame):
         customtkinter.CTkLabel(content_frame, text="" , text_font=("", 1000), width = 5000).grid(row=0, column=0, pady=150, padx=10)
 
         # Content
-        recipe1_label = customtkinter.CTkLabel(content_frame, text="Recipe 1", text_font=("TkMenuFont", 20))
+        recipe1_label = customtkinter.CTkLabel(content_frame, text="Recipe 1", text_font=("TkMenuFont", 20), text_color = ("#1e3d6d", "#ebe7e4"))
         recipe1_label.place(x=100, y = 150)
-        recipe1_img = ImageTk.PhotoImage(file="assets/images/recipe1.png")
+        recipe1_img = ImageTk.PhotoImage(file="assets/images/Recipes/recipe1.png")
         recipe1_widget = customtkinter.CTkLabel(content_frame, image=recipe1_img)
         recipe1_widget.image = recipe1_img
         recipe1_widget.place(x=100, y = 200)
-        recipe11_img = ImageTk.PhotoImage(file="assets/images/recipe11.png")
+        recipe11_img = ImageTk.PhotoImage(file="assets/images/Recipes/recipe11.png")
         recipe11_widget = customtkinter.CTkLabel(content_frame, image=recipe11_img)
         recipe11_widget.image = recipe11_img
         recipe11_widget.place(x=100, y = 435)
 
-        recipe2_label = customtkinter.CTkLabel(content_frame, text="Recipe 2", text_font=("TkMenuFont", 20))
+        recipe2_label = customtkinter.CTkLabel(content_frame, text="Recipe 2", text_font=("TkMenuFont", 20), text_color = ("#1e3d6d", "#ebe7e4"))
         recipe2_label.place(x=500, y = 150)
-        recipe2_img = ImageTk.PhotoImage(file="assets/images/recipe2.png")
+        recipe2_img = ImageTk.PhotoImage(file="assets/images/Recipes/recipe2.png")
         recipe2_widget = customtkinter.CTkLabel(content_frame, image=recipe2_img)
         recipe2_widget.image = recipe2_img
         recipe2_widget.place(x=500, y = 200)
-        recipe22_img = ImageTk.PhotoImage(file="assets/images/recipe22.png")
+        recipe22_img = ImageTk.PhotoImage(file="assets/images/Recipes/recipe22.png")
         recipe22_widget = customtkinter.CTkLabel(content_frame, image=recipe22_img)
         recipe22_widget.image = recipe22_img
         recipe22_widget.place(x=500, y = 435)
 
-        recipe3_label = customtkinter.CTkLabel(content_frame, text="Recipe 3", text_font=("TkMenuFont", 20))
+        recipe3_label = customtkinter.CTkLabel(content_frame, text="Recipe 3", text_font=("TkMenuFont", 20), text_color = ("#1e3d6d", "#ebe7e4"))
         recipe3_label.place(x=900, y = 150)
-        recipe3_img = ImageTk.PhotoImage(file="assets/images/recipe3.png")
+        recipe3_img = ImageTk.PhotoImage(file="assets/images/Recipes/recipe3.png")
         recipe3_widget = customtkinter.CTkLabel(content_frame, image=recipe3_img)
         recipe3_widget.image = recipe3_img
         recipe3_widget.place(x=900, y = 200)
-        recipe33_img = ImageTk.PhotoImage(file="assets/images/recipe33.png")
+        recipe33_img = ImageTk.PhotoImage(file="assets/images/Recipes/recipe33.png")
         recipe33_widget = customtkinter.CTkLabel(content_frame, image=recipe33_img)
         recipe33_widget.image = recipe33_img
         recipe33_widget.place(x=900, y = 435)

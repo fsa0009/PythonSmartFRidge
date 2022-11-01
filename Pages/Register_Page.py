@@ -1,18 +1,5 @@
-from tkinter import *
-from tkinter import ttk
-import tkinter
-from PIL import ImageTk, Image
-from tkinter import messagebox
-from tkinter import ttk as objTTK
-from functools import partial
-import tkinter as tk
-import subprocess
-import os
-import tkinter as objTK
-import datetime as objDateTime
-import customtkinter
-import sqlite3
-from Pages.Login_Page import FirebaseConfig
+from Pages import *
+
 
 class Register(customtkinter.CTkFrame):
     def __init__(self, master, controller):
@@ -35,7 +22,7 @@ class Register(customtkinter.CTkFrame):
 
 
         # Picture on left side
-        Welcome_img = Image.open("assets/images/WVU_Welcome.png")
+        Welcome_img = Image.open("assets/images/WVU.png")
         Welcome_img = Welcome_img.resize((500, 500), Image.ANTIALIAS)   
         Welcome_img = ImageTk.PhotoImage(Welcome_img)
         Welcome_widget = customtkinter.CTkLabel(left_frame, image=Welcome_img)

@@ -1,16 +1,5 @@
-from tkinter import *
-from tkinter import ttk
-import tkinter
-from PIL import ImageTk, Image
-from tkinter import messagebox
-from tkinter import ttk as objTTK
-from functools import partial
-import tkinter as tk
-import subprocess
-import os
-import tkinter as objTK
-import datetime as objDateTime
-import customtkinter
+from Pages import *
+
 
 class Settings(customtkinter.CTkFrame):
     def __init__(self, master, controller):
@@ -28,7 +17,7 @@ class Settings(customtkinter.CTkFrame):
         right_frame.grid(row = 0, column = 1, sticky = "nesw")
 
         # Picture on left side
-        Welcome_img = Image.open("assets/images/WVU_Welcome.png")
+        Welcome_img = Image.open("assets/images/WVU.png")
         Welcome_img = Welcome_img.resize((500, 500), Image.ANTIALIAS)   
         Welcome_img = ImageTk.PhotoImage(Welcome_img)
         Welcome_widget = customtkinter.CTkLabel(left_frame, image=Welcome_img)
@@ -58,7 +47,27 @@ class Settings(customtkinter.CTkFrame):
         button_4 = customtkinter.CTkButton(right_frame, text="Exit Interface", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
                                             width = 350,  command=controller.destroy)
         button_4.pack()
+        
+        
 
+        radio_frame = customtkinter.CTkFrame(right_frame, corner_radius=0, width = 350, height = 40)#, fg_color = "green")
+        radio_frame.pack(pady = 30)
+        
+        radio_var = tkinter.IntVar(value=1)
+
+        label_radio_group = customtkinter.CTkLabel(radio_frame, text="Date and Time:", text_color = ("#1e3d6d", "#ebe7e4"))
+        label_radio_group.place(relx=0.15, rely=0.5, anchor= "center")
+        
+        radio_button_1 = customtkinter.CTkRadioButton(radio_frame, text = "Show", text_color = ("#1e3d6d", "#ebe7e4"), 
+                                                      variable=radio_var, value=0, command = controller.show_clock_date)
+        radio_button_1.place(relx=0.4, rely=0.5, anchor= "center")
+
+        radio_button_2 = customtkinter.CTkRadioButton(radio_frame, text = " Hide ", text_color = ("#1e3d6d", "#ebe7e4"),  
+                                                      variable=radio_var, value=1, command = controller.hide_clock_date)
+        radio_button_2.place(relx=0.6, rely=0.5, anchor= "center")
+        
+        
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:controller.show_frame("MainMenu")
             ).place(relx=0.98, rely=0.97, anchor= "se")
+        
