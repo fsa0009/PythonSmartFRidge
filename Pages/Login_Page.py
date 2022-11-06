@@ -16,7 +16,6 @@ class Login(customtkinter.CTkFrame):
         global user
         username = StringVar()
         password = StringVar()
-        
         # Slicing the page
         left_frame = customtkinter.CTkFrame(master=self, corner_radius=0)#, fg_color = "red")
         left_frame.grid(row = 0, column = 0, sticky = "nesw")
@@ -98,10 +97,10 @@ class Login(customtkinter.CTkFrame):
                     pop.update()
                     pop.attributes("-topmost",1)
                 else:
-                    response = reset_password(reset_pwd_entry.get())
+                    response = FirebaseConfig().reset_password(reset_pwd_entry.get())
                     if response is None:
-                        messagebox.showinfo ("", "Password reset link was sent to your email.")
                         pop.destroy()
+                        messagebox.showinfo ("", "Password reset link was sent to your email.")
                     else:
                         pop.update()
                         pop.attributes("-topmost", 0)
@@ -110,7 +109,7 @@ class Login(customtkinter.CTkFrame):
                         pop.attributes("-topmost",1)
                         
 
-            customtkinter.CTkLabel(pop, text = "Email:", text_font=("yu gothic ui", 15, 'bold')).place(x=250, y=68, anchor=tkinter.E)
+            customtkinter.CTkLabel(pop, text = "Email:", text_font=("yu gothic ui", 15, 'bold'), text_color = ("#1e3d6d", "#ebe7e4")).place(x=250, y=68, anchor=tkinter.E)
 
             #Entry Boxe fo reset
 
@@ -128,25 +127,23 @@ class Login(customtkinter.CTkFrame):
         reset_pwd_button.place(relx = 0.76, anchor= "n")
 
         def login_user(): # Login Process
-            # a = FirebaseConfig()
             if (username_entry.get() == '') or (password_entry.get() == ''):
                 messagebox.showerror("","Email/Password cannot be empty!")
             else:
                 global user
-                response = FirebaseConfig().login(username_entry.get(), password_entry.get())               
-                user = FirebaseConfig().auth.sign_in_with_email_and_password(username_entry.get(), password_entry.get())
-                controller.app_login_cred['localId'].set(user['localId'])
+                response = FirebaseConfig().login(username_entry.get(), password_entry.get())                           
 
                 if response:
                     tok = response['idToken']
                     complete_account_info = FirebaseConfig().auth.get_account_info(tok)
+                    user = FirebaseConfig().auth.sign_in_with_email_and_password(username_entry.get(), password_entry.get())
                     email_verified = complete_account_info['users'][0]['emailVerified']
                     
                     if email_verified:
                         controller.app_login_cred['email'].set(response['email'])
                         controller.app_login_cred['idToken'].set(response['idToken'])
                         controller.app_login_cred['localId'].set(user['localId'])
-                        FirebaseConfig().auth.refresh(user['refreshToken'])
+                        #FirebaseConfig().auth.refresh(user['refreshToken'])
                         messagebox.showinfo ("", "Login Success")
                         username_entry.delete(0, END)
                         password_entry.delete(0, END)
@@ -166,7 +163,7 @@ class Login(customtkinter.CTkFrame):
                             pass
             
                     else:
-                         messagebox.showerror("", "User not found")
+                         pass
                 else:
                     messagebox.showerror("", "Verification Failed")
 
