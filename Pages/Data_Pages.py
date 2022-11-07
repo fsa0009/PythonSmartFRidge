@@ -18,7 +18,7 @@ class FirebaseConfig:
 
         self.app_login_cred = {'email': StringVar(), 'idToken': StringVar(), 'localId': StringVar()}
 
-         
+
     def register(self, username, password):
         try:
             user = self.auth.create_user_with_email_and_password(username, password)
@@ -47,12 +47,11 @@ class PantryList(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )
         self.controller = controller
-
         global aList
-        
+
         # Corner Picture (logo)
         logo_img = Image.open("assets/images/WVU.png")
-        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)   
+        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)
         logo_img = ImageTk.PhotoImage(logo_img)
         logo_widget = customtkinter.CTkLabel(self, image=logo_img)
         logo_widget.image = logo_img
@@ -90,7 +89,8 @@ class PantryList(customtkinter.CTkFrame):
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:controller.show_frame("MainMenu")
             ).place(relx=0.985, rely=0.97, anchor= "se")
-   
+
+
 class OptionsPantryList(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )
@@ -110,10 +110,10 @@ class OptionsPantryList(customtkinter.CTkFrame):
         global intitial_weight
         global update_button
         global delete_button
-        
+
         # Corner Picture (logo)
         logo_img = Image.open("assets/images/WVU.png")
-        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)   
+        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)
         logo_img = ImageTk.PhotoImage(logo_img)
         logo_widget = customtkinter.CTkLabel(self, image=logo_img)
         logo_widget.image = logo_img
@@ -146,7 +146,7 @@ class OptionsPantryList(customtkinter.CTkFrame):
         edit_image = ImageTk.PhotoImage(file="assets/images/Buttons/edit.png")
         scanner_image = ImageTk.PhotoImage(file="assets/images/Buttons/scanner.png")
         refresh_image = ImageTk.PhotoImage(file="assets/images/Buttons/refresh.png")
-        
+
         for record in range(len(List_header)):
             strHdr = List_header[record]
             List.heading(strHdr, text=strHdr.title(), sort_by=List_SortType[record])
@@ -157,10 +157,10 @@ class OptionsPantryList(customtkinter.CTkFrame):
 
         name_label = customtkinter.CTkLabel(self, text = "Name:", text_font=("TkHeadingtext_font", 18, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
         name_label.place(x=380, y=550, anchor="e")
-            
+
         name_entry = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
         name_entry.place(x=600, y=550, anchor="e")
-        
+
         brand_label = customtkinter.CTkLabel(self, text = "Brand:", text_font=("TkHeadingtext_font", 18, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
         brand_label.place(x=825, y=550, anchor="e")
         brand_entry = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
@@ -178,14 +178,14 @@ class OptionsPantryList(customtkinter.CTkFrame):
 
         barcode_entry = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 150, justify = CENTER)
         barcode_entry.place(x=1190, y=430, anchor="e")
-        
+
         # AddItems Page customtkinter.CTkButton
         AddItems_button = customtkinter.CTkButton(self, image=add_image,  text="", width=60, height=60, corner_radius=10,  command = add_record)
         AddItems_button.place(x=1260, y=150, anchor="e")
 
         # Update Items Button
         update_button = customtkinter.CTkButton(self, image=edit_image,  text="", width=60, height=60, corner_radius=10, command = update_record)
-        
+
         # Delete one Items Button
         delete_button = customtkinter.CTkButton(self, image=trash_image,  text="", width=60, height=60, corner_radius=10, command = delete_item)
 
@@ -194,18 +194,18 @@ class OptionsPantryList(customtkinter.CTkFrame):
 
         barcode_button = customtkinter.CTkButton(self, image=scanner_image,  text="", width=60, height=60, corner_radius=10, command = barcode_scanner)
         barcode_button.place(x=1260, y=430, anchor="e")
-        
+
         # Clear all Entry Boxes Button
         clear_button = customtkinter.CTkButton(self, text = "Clear", command = clear_entries, text_font=("TkHeadingtext_font", 20))
         clear_button.place(x=1260, y=550, anchor="e")
-        
+
         # deletelist_button = customtkinter.CTkButton(self, text = "Reset List", command = delete_all_items, text_font=("TkHeadingtext_font", 20), width = 180)
         # deletelist_button.place(x=200, y=150, anchor="e")
-        
+
         customtkinter.CTkButton(self, text="Hide Options", text_font = ("TkHeadingtext_font", 20) , cursor = "hand2",
                 command = lambda:[controller.show_frame("PantryList"),  cleanup()]
             ).pack(pady=(660, 0))
-        
+
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:[controller.show_frame("MainMenu"), cleanup()]
             ).place(relx=0.985, rely=0.97, anchor= "se")
@@ -214,17 +214,17 @@ class OptionsPantryList(customtkinter.CTkFrame):
         List.bind("<ButtonRelease-1>", select_record)
 
         intitial_weight = 1500
-        
+        exdate_entry.delete(0,END)
 
 class NonPantryList(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master)
         self.controller = controller
-        
+
         global aNonPantryList
         # Corner Picture (logo)
         logo_img = Image.open("assets/images/WVU.png")
-        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)   
+        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)
         logo_img = ImageTk.PhotoImage(logo_img)
         logo_widget = customtkinter.CTkLabel(self, image=logo_img)
         logo_widget.image = logo_img
@@ -262,7 +262,7 @@ class NonPantryList(customtkinter.CTkFrame):
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:controller.show_frame("MainMenu")
             ).place(relx=0.985, rely=0.97, anchor= "se")
- 
+
 class OptionsNonPantryList(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )
@@ -283,7 +283,7 @@ class OptionsNonPantryList(customtkinter.CTkFrame):
 
         # Corner Picture (logo)
         logo_img = Image.open("assets/images/WVU.png")
-        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)   
+        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)
         logo_img = ImageTk.PhotoImage(logo_img)
         logo_widget = customtkinter.CTkLabel(self, image=logo_img)
         logo_widget.image = logo_img
@@ -322,31 +322,31 @@ class OptionsNonPantryList(customtkinter.CTkFrame):
 
         entries_frame = customtkinter.CTkFrame(self, corner_radius=0, width=735, height=50)#, fg_color = "green")
         entries_frame.pack(pady = 30)
-        
+
         oid_entry_non = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20))
         #oid_entry_non.place(x=220, y=210, anchor="e")
 
         name_label = customtkinter.CTkLabel(self, text = "Name:", text_font=("TkHeadingtext_font", 18, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
         name_label.place(x=380, y=550, anchor="e")
-            
+
         name_entry_non = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
         name_entry_non.place(x=600, y=550, anchor="e")
-        
+
         brand_label = customtkinter.CTkLabel(self, text = "Brand:", text_font=("TkHeadingtext_font", 18, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
         brand_label.place(x=825, y=550, anchor="e")
         brand_entry_non = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
         brand_entry_non.place(x=1007, y=550, anchor="e")
-        
+
         exdate_entry_non = DateEntry(self, selectmode="day", font = ("TkHeadingtext_font", 20), date_pattern = 'mm-dd-y')
         exdate_entry_non.place(x=600, y=600, anchor="e")
 
 
         exdate_label = customtkinter.CTkLabel(self, text = "Exp. Date: ", text_font=("TkHeadingtext_font", 18, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
         exdate_label.place(x=404, y=600, anchor="e")
-        
+
         barcode_entry_non = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 150, justify = CENTER)
         barcode_entry_non.place(x=1190, y=430, anchor="e")
-        
+
         # AddItems Page customtkinter.CTkButton
         AddItems_button = customtkinter.CTkButton(self, image=add_image,  text="", width=60, height=60, corner_radius=10, command = add_record_non)
         AddItems_button.place(x=1260, y=150, anchor="e")
@@ -365,7 +365,7 @@ class OptionsNonPantryList(customtkinter.CTkFrame):
 
         barcode_button = customtkinter.CTkButton(self, image=scanner_image,  text="", width=60, height=60, corner_radius=10, command = barcode_scanner_non)
         barcode_button.place(x=1260, y=430, anchor="e")
-        
+
         # Clear all Entry Boxes Button
         clear_button = customtkinter.CTkButton(self, text = "Clear Entry", command = clear_entries, text_font=("TkHeadingtext_font", 20), width = 180)
         clear_button.place(x=1260, y=580, anchor="e")
@@ -380,6 +380,7 @@ class OptionsNonPantryList(customtkinter.CTkFrame):
 
         # Bind the treeview
         NonPantryList.bind("<ButtonRelease-1>", select_record_non)
+        exdate_entry_non.delete(0,END)
 
 
 class SuggestedShopping(customtkinter.CTkFrame):
@@ -391,7 +392,7 @@ class SuggestedShopping(customtkinter.CTkFrame):
 
         # Corner Picture (logo)
         logo_img = Image.open("assets/images/WVU.png")
-        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)   
+        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)
         logo_img = ImageTk.PhotoImage(logo_img)
         logo_widget = customtkinter.CTkLabel(self, image=logo_img)
         logo_widget.image = logo_img
@@ -426,7 +427,7 @@ class SuggestedShopping(customtkinter.CTkFrame):
         customtkinter.CTkButton(self, text="Show Options", text_font = ("TkHeadingtext_font", 20) , cursor = "hand2",
                 command = lambda:controller.show_frame("OptionsSuggestedShopping")
             ).pack(pady=(20, 0))
-        
+
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:controller.show_frame("MainMenu")
             ).place(relx=0.985, rely=0.97, anchor= "se")
@@ -444,13 +445,13 @@ class OptionsSuggestedShopping(customtkinter.CTkFrame):
         global name_entry_Shopping
         global brand_entry_Shopping
         global oid_entry_Shopping
-        
+
         global update_button_Shopping
         global delete_button_Shopping
 
         # Corner Picture (logo)
         logo_img = Image.open("assets/images/WVU.png")
-        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)   
+        logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)
         logo_img = ImageTk.PhotoImage(logo_img)
         logo_widget = customtkinter.CTkLabel(self, image=logo_img)
         logo_widget.image = logo_img
@@ -488,16 +489,16 @@ class OptionsSuggestedShopping(customtkinter.CTkFrame):
 
         entries_frame = customtkinter.CTkFrame(self, corner_radius=0, width=735, height=50)#, fg_color = "green")
         entries_frame.pack(pady = 10)
-        
+
         oid_entry_Shopping = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20))
         #oid_entry_Shopping.place(x=220, y=210, anchor="e")
 
         name_label = customtkinter.CTkLabel(entries_frame, text = "Name:", text_font=("TkHeadingtext_font", 18, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
         name_label.place(relx = 0.02, rely = 0.16)
-            
+
         name_entry_Shopping = customtkinter.CTkEntry(entries_frame, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
         name_entry_Shopping.place(relx = 0.18, rely = 0.1)
-        
+
         brand_label = customtkinter.CTkLabel(entries_frame, text = "Brand:", text_font=("TkHeadingtext_font", 18, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
         brand_label.place(relx = 0.5, rely = 0.16)
         brand_entry_Shopping = customtkinter.CTkEntry(entries_frame, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
@@ -508,12 +509,12 @@ class OptionsSuggestedShopping(customtkinter.CTkFrame):
         AddItems_button.place(x=1260, y=150, anchor="e")
 
         # Update Items Button
-        update_button_Shopping = customtkinter.CTkButton(self, image=edit_image,  text="", width=60, height=60, corner_radius=10, 
+        update_button_Shopping = customtkinter.CTkButton(self, image=edit_image,  text="", width=60, height=60, corner_radius=10,
                                                          state = 'disabled', fg_color = ("#0a172b", "#bc891d"), command = update_record_Shopping)
         update_button_Shopping.place(x=1260, y=220, anchor="e")
 
         # Delete one Items Button
-        delete_button_Shopping = customtkinter.CTkButton(self, image=delete_image,  text="", width=60, height=60, corner_radius=10, 
+        delete_button_Shopping = customtkinter.CTkButton(self, image=delete_image,  text="", width=60, height=60, corner_radius=10,
                                                          state = 'disabled', fg_color = ("#0a172b", "#bc891d"), command = delete_item_Shopping)
         delete_button_Shopping.place(x=1260, y=290, anchor="e")
 
@@ -528,27 +529,234 @@ class OptionsSuggestedShopping(customtkinter.CTkFrame):
         customtkinter.CTkButton(self, text="Hide Options", text_font = ("TkHeadingtext_font", 20) , cursor = "hand2",
                 command = lambda:[controller.show_frame("SuggestedShopping"), cleanup()]
             ).pack(pady=(40, 0))
-        
+
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:[controller.show_frame("MainMenu"), cleanup()]
             ).place(relx=0.985, rely=0.97, anchor= "se")
 
         # Bind the treeview
         ShoppingList.bind("<ButtonRelease-1>", select_record_Shopping)
-   
+
+
+class RecipeSuggestions(customtkinter.CTkFrame):
+    def __init__(self, master, controller):
+        customtkinter.CTkFrame.__init__(self, master)
+        self.controller = controller
+        n_rows = 8
+        for i in range(n_rows):
+            self.grid_rowconfigure(i,  weight = 1)
+
+        self.grid_columnconfigure(0,  weight = 1)
+        self.grid_columnconfigure(1,  weight = 4)
+        # self.grid(padx=20)
+
+        global Recipe01_name_Entry
+        global Recipe01_items_Entry
+        global Recipe01_cookingtime_Entry
+        global Recipe01_calories_Entry
+        global Recipe01_servings_Entry
+        global Recipe01_inst_Entry
+        global recipe1_btn
+        global recipe2_btn
+        Recipe01_name_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 25),
+                                                    text_color = ("#1e3d6d", "#ebe7e4"))
+        Recipe01_name_Entry.grid(row=0, column = 0, columnspan = 2)
+
+
+        customtkinter.CTkLabel(self, text="Items:", text_font=("TkHeadingtext_font", 15),
+                                text_color = ("#1e3d6d", "#ebe7e4")).grid(row=1, column = 0, sticky="E")
+        Recipe01_items_Entry = Text(self, font=("TkHeadingtext_font", 15),  width = 40, height = 7, fg = "white",
+                                    bg = "#403c3c", relief = GROOVE, padx = 20, pady =20, bd =0)
+        Recipe01_items_Entry.grid(row=1, column = 1, sticky="W")
+
+
+        customtkinter.CTkLabel(self, text="Cooking Time:", text_font=("TkHeadingtext_font", 15),
+                                text_color = ("#1e3d6d", "#ebe7e4")).grid(row=2, column = 0, sticky="E")
+        Recipe01_cookingtime_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 15), fg_color= "#403c3c")
+        Recipe01_cookingtime_Entry.grid(row=2, column = 1, sticky="W")
+
+
+        customtkinter.CTkLabel(self, text="Calories:", text_font=("TkHeadingtext_font", 15),
+                                text_color = ("#1e3d6d", "#ebe7e4")).grid(row=3, column = 0, sticky="E")
+        Recipe01_calories_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 15), fg_color= "#403c3c")
+        Recipe01_calories_Entry.grid(row=3, column = 1, sticky="W")
+
+
+        customtkinter.CTkLabel(self, text="Servings:", text_font=("TkHeadingtext_font", 15),
+                                text_color = ("#1e3d6d", "#ebe7e4")).grid(row=4, column = 0, sticky="E")
+        Recipe01_servings_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 15), fg_color= "#403c3c")
+        Recipe01_servings_Entry.grid(row=4, column = 1, sticky="W")
+
+
+        customtkinter.CTkLabel(self, text="Instructions:", text_font=("TkHeadingtext_font", 15),
+                                text_color = ("#1e3d6d", "#ebe7e4")).grid(row=5, column = 0, sticky="E")
+        Recipe01_inst_Entry = Text(self, font=("TkHeadingtext_font", 15),  width = 75, height = 5, fg = "white",
+                                    bg = "#403c3c", relief = GROOVE, padx = 20, pady =20, bd =0)
+        Recipe01_inst_Entry.grid(row=5, column = 1, sticky="W")
+
+        customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
+                command=lambda:[controller.show_frame("MainMenu"), cleanup()]
+            ).place(relx=0.985, rely=0.97, anchor= "se")
+
+
+        recipe2_btn = customtkinter.CTkButton(self, text="Next Recipe", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
+                                command=recipes2)
+        recipe2_btn.place(relx=0.985, rely=0.2, anchor= "se")
+
+        recipe1_btn = customtkinter.CTkButton(self, text="Next Recipe", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
+                                command=recipes1)
+
+        recipes1()
+
+def recipes1():
+
+    # pull data
+    db = FirebaseConfig().firebase.database()
+
+    Recipe01 = db.child("recipes").child("global").child("Recipe_01").get()
+    Recipe01_data = Recipe01.val()
+    Recipe01_values = list(Recipe01_data.values())
+
+    Recipe01_name = Recipe01_values[0]
+    Recipe01_name_Entry.configure(text = Recipe01_name)
+    # print(Recipe01_name)
+
+    Recipe01_items = list(Recipe01_values[1].values())
+    Recipe01_items_Entry.config(state='normal')
+    Recipe01_items_Entry.delete(1.0, END)
+    #print(Recipe01_items)
+    try:
+        Recipe01_items_Entry.insert(1.0 , f'1. {Recipe01_items[0]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(2.0 , f'2. {Recipe01_items[1]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(3.0 , f'3. {Recipe01_items[2]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(4.0 , f'4. {Recipe01_items[3]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(5.0 , f'5. {Recipe01_items[4]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(6.0 , f'6. {Recipe01_items[5]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(7.0 , f'7. {Recipe01_items[6]}\n')
+    except:
+        pass
+    Recipe01_items_Entry.config(state='disabled')
+
+    Recipe01_cookingtime = Recipe01_values[2]
+    Recipe01_cookingtime_Entry.configure(text = Recipe01_cookingtime)
+    #print(Recipe01_cookingtime)
+
+    Recipe01_calories = Recipe01_values[3]
+    Recipe01_calories_Entry.configure(text = Recipe01_calories)
+    #print(Recipe01_calories)
+
+    Recipe01_servings = Recipe01_values[4]
+    Recipe01_servings_Entry.configure(text = Recipe01_servings)
+    #print(Recipe01_servings)
+
+    Recipe01_instruction = Recipe01_values[5]
+    Recipe01_inst_Entry.config(state='normal')
+    Recipe01_inst_Entry.delete(1.0, END)
+    Recipe01_inst_Entry.insert(1.0, Recipe01_instruction)
+    Recipe01_inst_Entry.config(state='disabled')
+    # print(Recipe01_instruction)
+    recipe1_btn.place_forget()
+    recipe2_btn.place(relx=0.985, rely=0.2, anchor= "se")
+
+def recipes2():
+
+    # pull data
+    db = FirebaseConfig().firebase.database()
+
+    Recipe02 = db.child("recipes").child("global").child("Recipe_02").get()
+    Recipe02_data = Recipe02.val()
+    Recipe02_values = list(Recipe02_data.values())
+
+    Recipe02_name = Recipe02_values[0]
+    Recipe01_name_Entry.configure(text = Recipe02_name)
+    # print(Recipe02_name)
+
+    Recipe02_items = list(Recipe02_values[1].values())
+    Recipe01_items_Entry.config(state='normal')
+    Recipe01_items_Entry.delete(1.0, END)
+    #print(Recipe02_items)
+    try:
+        Recipe01_items_Entry.insert(1.0 , f'1. {Recipe02_items[0]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(2.0 , f'2. {Recipe02_items[1]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(3.0 , f'3. {Recipe02_items[2]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(4.0 , f'4. {Recipe02_items[3]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(5.0 , f'5. {Recipe02_items[4]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(6.0 , f'6. {Recipe02_items[5]}\n')
+    except:
+        pass
+    try:
+        Recipe01_items_Entry.insert(7.0 , f'7. {Recipe02_items[6]}\n')
+    except:
+        pass
+    Recipe01_items_Entry.config(state='disabled')
+
+    Recipe02_cookingtime = Recipe02_values[2]
+    Recipe01_cookingtime_Entry.configure(text = Recipe02_cookingtime)
+    #print(Recipe02_cookingtime)
+
+    Recipe02_calories = Recipe02_values[3]
+    Recipe01_calories_Entry.configure(text = Recipe02_calories)
+    #print(Recipe02_calories)
+
+    Recipe02_servings = Recipe02_values[4]
+    Recipe01_servings_Entry.configure(text = Recipe02_servings)
+    #print(Recipe02_servings)
+
+
+    Recipe02_instruction = Recipe02_values[5]
+    Recipe01_inst_Entry.config(state='normal')
+    Recipe01_inst_Entry.delete(1.0, END)
+    Recipe01_inst_Entry.insert(1.0, Recipe02_instruction)
+    Recipe01_inst_Entry.config(state='disabled')
+    # print(Recipe02_instruction)
+    recipe2_btn.place_forget()
+    recipe1_btn.place(relx=0.985, rely=0.2, anchor= "se")
 
 def reset_settings():
     # this is for logging out/reset
-    
+
     cleanup()
     List.delete(*List.get_children())
     aList.delete(*aList.get_children())
-    
+
     NonPantryList.delete(*NonPantryList.get_children())
     aNonPantryList.delete(*aNonPantryList.get_children())
-    
+
     ShoppingList.delete(*ShoppingList.get_children())
-    aShoppingList.delete(*aShoppingList.get_children()) 
+    aShoppingList.delete(*aShoppingList.get_children())
 
 def deselect():
     # clear entry boxes
@@ -560,11 +768,11 @@ def deselect():
         for item in NonPantryList.get_children():
             deselect_children(item)
         for item in ShoppingList.get_children():
-            deselect_children(item)      
+            deselect_children(item)
 
     def deselect_children(item):
         # Deselect the current item.
-        try:               
+        try:
             List.selection_remove(item)
         except:
             pass
@@ -581,10 +789,10 @@ def deselect():
 def cleanup():
     clear_entries()
     deselect()
-    
-# Database Pulling Functions for all the lists 
+
+# Database Pulling Functions for all the lists
 def refresh():
-  
+
     try:
         clear_entries()
         List.delete(*List.get_children())
@@ -653,7 +861,7 @@ def query_database_non():
                                         datalist[3]
                                         )
                     )
-        
+
 def query_database_shopping():
     # pull data
     db = FirebaseConfig().firebase.database()
@@ -673,7 +881,7 @@ def query_database_shopping():
                                         datalist[2]
                                         )
                     )
-     
+
 def clear_entries():
 
     name_entry.delete(0, END)
@@ -684,23 +892,23 @@ def clear_entries():
     barcode_entry.delete(0, END)
     update_button.place_forget()
     delete_button.place_forget()
-    
+
     name_entry_non.delete(0, END)
     brand_entry_non.delete(0, END)
     exdate_entry_non.delete(0, END)
     barcode_entry_non.delete(0, END)
     update_button_non.place_forget()
     delete_button_non.place_forget()
-    
+
     oid_entry_non.delete(0, END)
     name_entry_Shopping.delete(0, END)
     brand_entry_Shopping.delete(0, END)
     oid_entry_Shopping.delete(0, END)
     update_button_Shopping.configure(state = 'disabled', fg_color = ("#0a172b", "#bc891d"))
     delete_button_Shopping.configure(state = 'disabled', fg_color = ("#0a172b", "#bc891d"))
-    
+
     deselect()
-    
+
 # Functions for Pantry Items
 def select_record(e):
     # clear entry boxes
@@ -710,7 +918,7 @@ def select_record(e):
     amount_entry.delete(0, END)
     oid_entry.delete(0, END)
     barcode_entry.delete(0, END)
-    
+
     # Grab record number
     selected = List.focus()
     # Grab record VALUES
@@ -729,13 +937,17 @@ def select_record(e):
 def add_record(): # adds data to the table (List)
     if name_entry.get()=="":
         messagebox.showerror("", "Item's data needed")
+    elif amount_entry.get()=="":
+        messagebox.showerror("", "You must add the current amount \nThis is for testing only")
+    elif int(amount_entry.get())>1500:
+        messagebox.showerror("", "The current amount cannot be greater than 1500 \nThis is for testing only")
     else:
-        data =  {'1 Name': name_entry.get(),
-                '2 Brand': brand_entry.get(),
-                '3 Expiration-Date': exdate_entry.get(),
-                '4 Current-Weight': amount_entry.get(),
-                '5 Initial-Weight': intitial_weight,
-                '6 Grid-Location': "1"
+        data =  {'A_Name': name_entry.get(),
+                'B_Brand': brand_entry.get(),
+                'C_ExpirationDate': exdate_entry.get(),
+                'D_CurrentWeight': amount_entry.get(),
+                'E_InitialWeight': intitial_weight,
+                'F_GridLocation': "1"
                 }
         db = FirebaseConfig().firebase.database()
         db.child("pantry-items").child(user['localId']).push(data)
@@ -744,13 +956,13 @@ def add_record(): # adds data to the table (List)
         for itemsData in Items.each():
 
             if itemsData.val() == data:
-                data =  {'1 Name': name_entry.get(),
-                        '2 Brand': brand_entry.get(),
-                        '3 Expiration-Date': exdate_entry.get(),
-                        '4 Current-Weight': amount_entry.get(),
-                        '5 Initial-Weight': intitial_weight,
-                        '6 Grid-Location': "1",
-                        '7 id': itemsData.key(),
+                data =  {'A_Name': name_entry.get(),
+                        'B_Brand': brand_entry.get(),
+                        'C_ExpirationDate': exdate_entry.get(),
+                        'D_CurrentWeight': amount_entry.get(),
+                        'E_InitialWeight': intitial_weight,
+                        'F_GridLocation': "1",
+                        'G_ID': itemsData.key(),
                         }
                 db.child("pantry-items").child(user['localId']).child(itemsData.key()).update(data)
 
@@ -772,27 +984,27 @@ def add_record(): # adds data to the table (List)
                             itemsData.key()
                             )
                     )
-        clear_entries()
-        deselect()
+        cleanup()
 
 def update_record():
     db = FirebaseConfig().firebase.database()
-    data =  {'1 Name': name_entry.get(),
-            '2 Brand': brand_entry.get(),
-            '3 Expiration-Date': exdate_entry.get(),
-            '4 Current-Weight': amount_entry.get(),
-            '5 Initial-Weight': intitial_weight,
-            '6 Grid-Location': "1",
-            '7 id': oid_entry.get(),
+    data =  {
+            'A_Name': name_entry.get(),
+            'B_Brand': brand_entry.get(),
+            'C_ExpirationDate': exdate_entry.get(),
+            'D_CurrentWeight': amount_entry.get(),
+            'E_InitialWeight': intitial_weight,
+            'F_GridLocation': "1",
+            'G_ID': oid_entry.get(),
             }
     db.child("pantry-items").child(user['localId']).child(oid_entry.get()).update(data)
     # Clear the Treeview, clear entries, and pull database
     List.delete(*List.get_children())
     aList.delete(*aList.get_children())
-    clear_entries()
+
     query_database()
+    cleanup()
     messagebox.showinfo ("", "Item Updated!")
-    deselect()
 
 def delete_item(): # Delete selected ITEM
     List_selected = List.selection()
@@ -812,9 +1024,9 @@ def delete_item(): # Delete selected ITEM
             # Clear the Treeview, clear entries, and pull database
             List.delete(*List.get_children())
             aList.delete(*aList.get_children())
-            
-            clear_entries()
+
             query_database()
+            cleanup()
             messagebox.showinfo ("", "Item Deleted!")
 
 def delete_all_items(): # Delets all ITEMS
@@ -834,7 +1046,7 @@ def delete_all_items(): # Delets all ITEMS
         # Clear the Treeview, clear entries, and pull database
         List.delete(*List.get_children())
         aList.delete(*aList.get_children())
-        clear_entries()
+        cleanup()
         messagebox.showinfo ("", "Items Deleted!")
 
 def barcode_scanner():
@@ -849,9 +1061,9 @@ def barcode_scanner():
 
             upcData = json.loads(response.text)
             item_data = upcData['items']
-            
+
             item_data_list = list(item_data[0].values())
-            
+
             Item_name = item_data_list[1]
             name_entry.insert(0, Item_name)
             item_brand = item_data_list[4]
@@ -859,7 +1071,7 @@ def barcode_scanner():
         except:
             messagebox.showerror("Text", "Item is not on the database\n" "Please use manually input instead")
             barcode_entry.delete(0, END)
-            
+
         # print(f'#0 {item_data_list[0]}')
         # print(f'#1 {item_data_list[1]}')
         # print(f'#2 {item_data_list[2]}')
@@ -887,7 +1099,7 @@ def select_record_non(e):
     brand_entry_non.insert(0, values[1])
     exdate_entry_non.insert(0, values[2])
     oid_entry_non.insert(0, values[3])
-    
+
     update_button_non.place(x=1260, y=220, anchor="e")
     delete_button_non.place(x=1260, y=290, anchor="e")
 
@@ -895,9 +1107,9 @@ def add_record_non(): # adds data to the table (List)
     if name_entry_non.get()=="":
         messagebox.showerror("", "Item's data needed")
     else:
-        data =  {'1 Name': name_entry_non.get(),
-                '2 Brand': brand_entry_non.get(),
-                '3 Expiration-Date': exdate_entry_non.get(),
+        data =  {'A_Name': name_entry_non.get(),
+                'B_Brand': brand_entry_non.get(),
+                'C_ExpirationDate': exdate_entry_non.get(),
                 }
         db = FirebaseConfig().firebase.database()
         db.child("non-pantry-items").child(user['localId']).push(data)
@@ -906,10 +1118,10 @@ def add_record_non(): # adds data to the table (List)
         for itemsData in Items.each():
 
             if itemsData.val() == data:
-                data =  {'1 Name': name_entry_non.get(),
-                        '2 Brand': brand_entry_non.get(),
-                        '3 Expiration-Date': exdate_entry_non.get(),
-                        '4 id': itemsData.key(),
+                data =  {'A_Name': name_entry_non.get(),
+                        'B_Brand': brand_entry_non.get(),
+                        'C_ExpirationDate': exdate_entry_non.get(),
+                        'D_ID': itemsData.key(),
                         }
                 db.child("non-pantry-items").child(user['localId']).child(itemsData.key()).update(data)
 
@@ -929,13 +1141,14 @@ def add_record_non(): # adds data to the table (List)
                             itemsData.key()
                             )
                     )
+        clear_entries()
 
 def update_record_non():
     db = FirebaseConfig().firebase.database()
-    data =  {'1 Name': name_entry_non.get(),
-            '2 Brand': brand_entry_non.get(),
-            '3 Expiration-Date': exdate_entry_non.get(),
-            '4 id': oid_entry_non.get(),
+    data =  {'A_Name': name_entry_non.get(),
+            'B_Brand': brand_entry_non.get(),
+            'C_ExpirationDate': exdate_entry_non.get(),
+            'D_ID': oid_entry_non.get(),
             }
     db.child("non-pantry-items").child(user['localId']).child(oid_entry_non.get()).update(data)
     # Clear the Treeview, clear entries, and pull database
@@ -963,9 +1176,8 @@ def delete_item_non(): # Delete selected ITEM
             # Clear the Treeview, clear entries, and pull database
             NonPantryList.delete(*NonPantryList.get_children())
             aNonPantryList.delete(*aNonPantryList.get_children())
-
-            clear_entries()
             query_database_non()
+            cleanup()
             messagebox.showinfo ("", "Item Deleted!")
 
 def delete_all_non(): # Delets all ITEMS
@@ -985,7 +1197,7 @@ def delete_all_non(): # Delets all ITEMS
         # Clear the Treeview, clear entries, and pull database
         NonPantryList.delete(*NonPantryList.get_children())
         aNonPantryList.delete(*aNonPantryList.get_children())
-        clear_entries()
+        cleanup()
         messagebox.showinfo ("", "Items Deleted!")
 
 def barcode_scanner_non():
@@ -1000,9 +1212,9 @@ def barcode_scanner_non():
 
             upcData = json.loads(response.text)
             item_data = upcData['items']
-            
+
             item_data_list = list(item_data[0].values())
-            
+
             Item_name = item_data_list[1]
             name_entry_non.insert(0, Item_name)
             item_brand = item_data_list[4]
@@ -1010,7 +1222,7 @@ def barcode_scanner_non():
         except:
             messagebox.showerror("Text", "Item is not on the database\n" "Please use manually input instead")
             barcode_entry_non.delete(0, END)
-            
+
 # Functions for Shooping Items
 def select_record_Shopping(e):
     # clear entry boxes
@@ -1018,20 +1230,20 @@ def select_record_Shopping(e):
     name_entry_Shopping.delete(0, END)
     brand_entry_Shopping.delete(0, END)
     oid_entry_Shopping.delete(0, END)
-    
+
     # Grab record number
     selected = ShoppingList.focus()
     # Grab record VALUES
     values = ShoppingList.item(selected, "values")
-    
+
     # output to entry boxes
     name_entry_Shopping.insert(0, values[0])
     brand_entry_Shopping.insert(0, values[1])
     oid_entry_Shopping.insert(0, values[2])
-    
+
     update_button_Shopping.configure(state = "normal", fg_color = ("#122e54", "#ebab24"))
     # update_button_Shopping.place(x=1260, y=220, anchor="e")
-    
+
     delete_button_Shopping.configure(state = "normal", fg_color = ("#122e54", "#ebab24"))
     # delete_button_Shopping.place(x=1260, y=290, anchor="e")
 
@@ -1039,8 +1251,8 @@ def add_record_Shopping(): # adds data to the table (List)
     if name_entry_Shopping.get()=="":
         messagebox.showerror("", "Item's data needed")
     else:
-        data =  {'1 Name': name_entry_Shopping.get(),
-                '2 Brand': brand_entry_Shopping.get(),
+        data =  {'A_Name': name_entry_Shopping.get(),
+                'B_Brand': brand_entry_Shopping.get(),
                 }
         db = FirebaseConfig().firebase.database()
         db.child("shopping-list").child(user['localId']).push(data)
@@ -1049,9 +1261,9 @@ def add_record_Shopping(): # adds data to the table (List)
         for itemsData in Items.each():
 
             if itemsData.val() == data:
-                data =  {'1 Name': name_entry_Shopping.get(),
-                        '2 Brand': brand_entry_Shopping.get(),
-                        '3 id': itemsData.key(),
+                data =  {'A_Name': name_entry_Shopping.get(),
+                        'B_Brand': brand_entry_Shopping.get(),
+                        'C_ID': itemsData.key(),
                         }
                 db.child("shopping-list").child(user['localId']).child(itemsData.key()).update(data)
 
@@ -1069,12 +1281,13 @@ def add_record_Shopping(): # adds data to the table (List)
                             itemsData.key()
                             )
                     )
+        clear_entries()
 
 def update_record_Shopping():
     db = FirebaseConfig().firebase.database()
-    data =  {'1 Name': name_entry_Shopping.get(),
-            '2 Brand': brand_entry_Shopping.get(),
-            '3 id': oid_entry_Shopping.get(),
+    data =  {'A_Name': name_entry_Shopping.get(),
+            'B_Brand': brand_entry_Shopping.get(),
+            'C_ID': oid_entry_Shopping.get(),
             }
     db.child("shopping-list").child(user['localId']).child(oid_entry_Shopping.get()).update(data)
     # Clear the Treeview, clear entries, and pull database
@@ -1100,11 +1313,11 @@ def delete_item_Shopping(): # Delete selected ITEM
             #########################################################
 
             # Clear the Treeview, clear entries, and pull database
-            List.delete(*List.get_children())
-            aList.delete(*aList.get_children())
-            
-            clear_entries()
+            ShoppingList.delete(*ShoppingList.get_children())
+            aShoppingList.delete(*aShoppingList.get_children())
+
             query_database_shopping()
+            cleanup()
             messagebox.showinfo ("", "Item Deleted!")
 
 def delete_all_Shopping(): # Delets all ITEMS
@@ -1124,5 +1337,5 @@ def delete_all_Shopping(): # Delets all ITEMS
         # Clear the Treeview, clear entries, and pull database
         ShoppingList.delete(*ShoppingList.get_children())
         aShoppingList.delete(*aShoppingList.get_children())
-        clear_entries
+        cleanup()
         messagebox.showinfo ("", "Items Deleted!")

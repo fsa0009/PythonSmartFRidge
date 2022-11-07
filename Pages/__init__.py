@@ -26,7 +26,7 @@ from Pages.Login_Page import *
 from Pages.Register_Page import *
 from Pages.MainMenu_Page import *
 from Pages.Data_Pages import *
-from Pages.Recipe_Page import *
+# from Pages.Recipe_Page import *
 from Pages.Settings_Page import *
 
 # Start up theme
