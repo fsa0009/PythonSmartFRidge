@@ -1,6 +1,5 @@
 from Pages import *
 
-
 # Main Class
 class SmartFridgeApp(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
@@ -9,7 +8,6 @@ class SmartFridgeApp(customtkinter.CTk):
         window.pack(side="top", fill="both", expand=True)
         window.grid_rowconfigure(0, weight=1)
         window.grid_columnconfigure(0, weight=1)
-
 
         # this data is shared among all the classes
         self.app_login_cred = {'email': StringVar(), 'idToken': StringVar(), 'localId': StringVar()}
@@ -28,13 +26,13 @@ class SmartFridgeApp(customtkinter.CTk):
                   Settings):
             page_name = F.__name__
             global frame
-            
+
             frame = F(master=window, controller=self)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_frame("Login")
-        
+
         #Styling the treeviews
         style = ttk.Style()
         style.theme_use("default")
@@ -47,7 +45,7 @@ class SmartFridgeApp(customtkinter.CTk):
         self.change_mode()
 
     # Switches between Pages
-    def show_frame(self, page_name):        
+    def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
 
@@ -78,7 +76,7 @@ class SmartFridgeApp(customtkinter.CTk):
         format_date=f"{date:%a, %b %d %Y}"
         global date_label
         date_label=customtkinter.CTkLabel(self, text=format_date, text_font=("Calibri", 25), text_color = ("#1e3d6d", "#ebe7e4"))
-        date_label.place(x=975, y = 20)
+        date_label.place(relx=0.81, rely=0.01)
 
         def Clock():
             hour = time.strftime("%I")
@@ -87,9 +85,10 @@ class SmartFridgeApp(customtkinter.CTk):
             period = time.strftime("%p")
             clock.configure(text = hour + ":" + minute + ":" + second + " " + period)
             clock.after(1000, Clock)
+
         global clock
         clock = customtkinter.CTkLabel(self, text = "", text_font=("Calibri", 25), text_color = ("#1e3d6d", "#ebe7e4"))
-        clock.place(x=1055, y=60)
+        clock.place(relx=0.845, rely=0.06)
         Clock()
 
     def hide_clock_date(self):

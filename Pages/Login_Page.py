@@ -1,5 +1,6 @@
 from Pages import *
 from Pages.Data_Pages import *
+from Pages.MainMenu_Page import *
 
 class Login(customtkinter.CTkFrame):
     def __init__(self, master, controller):
@@ -8,7 +9,7 @@ class Login(customtkinter.CTkFrame):
         self.grid_columnconfigure(0, weight = 1)
         self.grid_columnconfigure(1, weight = 1)
         self.grid_rowconfigure(0, weight = 1)
-        
+
         global username
         global password
         global username_entry
@@ -25,17 +26,17 @@ class Login(customtkinter.CTkFrame):
 
         # Picture on left side
         Welcome_img = Image.open("assets/images/WVU.png")
-        Welcome_img = Welcome_img.resize((500, 500), Image.ANTIALIAS)   
+        Welcome_img = Welcome_img.resize((500, 500), Image.ANTIALIAS)
         Welcome_img = ImageTk.PhotoImage(Welcome_img)
         Welcome_widget = customtkinter.CTkLabel(left_frame, image=Welcome_img)
         Welcome_widget.image = Welcome_img
         Welcome_widget.pack(pady = (120, 0) ,anchor = "center")
 
         label_1 = customtkinter.CTkLabel(right_frame, text='Smart Fridge GUI', text_font=("TkMenutext_font", 25, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
-        label_1.pack(pady = (150, 0))
+        label_1.pack(pady = (100, 0))
 
         tab_frame = customtkinter.CTkFrame(right_frame, corner_radius=0, width=260, height=40)#, fg_color = "green")
-        tab_frame.pack(pady = 20)
+        tab_frame.pack(pady = (20, 50))
 
         # Tab Login button
         login_button = customtkinter.CTkButton(tab_frame, text='Login', text_font=("yu gothic ui bold", 12), borderwidth=0, text_color = ("#1e3d6d", "#ebe7e4"),
@@ -48,7 +49,7 @@ class Login(customtkinter.CTkFrame):
         SignUp_button = customtkinter.CTkButton(tab_frame, text='Sign up', text_font=("yu gothic ui bold", 12), borderwidth=0, text_color = ("#1e3d6d", "#ebe7e4"),
                                   fg_color= ("#ebe7e4", "#122e54"), hover_color= ("#c6baba", "#1e3d6d"),  cursor='hand2', width = 2, command=lambda: controller.show_frame("Register"))
         SignUp_button.place(relx = 0.86, anchor= "n")
-        
+
         # Username Entry
         username_label = customtkinter.CTkLabel(right_frame, text='• Email', text_font=("yu gothic ui", 11, 'bold'), text_color = ("#1e3d6d", "#ebe7e4"))
         username_label.pack(padx = (0, 212))
@@ -70,7 +71,7 @@ class Login(customtkinter.CTkFrame):
 
         option_frame = customtkinter.CTkFrame(right_frame, corner_radius=0, width=260, height=40)#, fg_color = "green")
         option_frame.pack()
-        
+
         checkButton = customtkinter.CTkCheckBox(option_frame, text='show password', command = password_command, text_color = ("#1e3d6d", "#ebe7e4"), hover_color= ("#c6baba", "#1e3d6d"),)
         checkButton.place(relx = 0, rely = 0.06)
 
@@ -86,9 +87,9 @@ class Login(customtkinter.CTkFrame):
             x_cordinate = int((screen_width/2) - (width/2))
             y_cordinate = int((screen_height/2) - (height/2))
             pop.geometry("{}x{}+{}+{}".format(width, height, x_cordinate, y_cordinate))
-            
+
             username_reset = StringVar()
-            
+
             def call_reset_pwd():
                 if reset_pwd_entry.get() == "":
                     pop.update()
@@ -107,7 +108,7 @@ class Login(customtkinter.CTkFrame):
                         messagebox.showerror("", "Account not found")
                         pop.update()
                         pop.attributes("-topmost",1)
-                        
+
 
             customtkinter.CTkLabel(pop, text = "Email:", text_font=("yu gothic ui", 15, 'bold'), text_color = ("#1e3d6d", "#ebe7e4")).place(x=250, y=68, anchor=tkinter.E)
 
@@ -122,32 +123,44 @@ class Login(customtkinter.CTkFrame):
                     command = call_reset_pwd).place(x=720, y=68, anchor=tkinter.CENTER)
 
         # reset_pwd_label = Label(right_frame, text="Forgot Password?", cursor="hand2", bg="#001532", fg="white")
-        reset_pwd_button = customtkinter.CTkButton(option_frame, text='Forgot Password?', text_color = ("#1e3d6d", "#ebe7e4"), 
+        reset_pwd_button = customtkinter.CTkButton(option_frame, text='Forgot Password?', text_color = ("#1e3d6d", "#ebe7e4"),
                                     fg_color= ("#ebe7e4", "#122e54"), hover_color= ("#c6baba", "#1e3d6d"),  borderwidth=0, cursor='hand2', width = 2,  command=pwd_reset)
         reset_pwd_button.place(relx = 0.76, anchor= "n")
+
 
         def login_user(): # Login Process
             if (username_entry.get() == '') or (password_entry.get() == ''):
                 messagebox.showerror("","Email/Password cannot be empty!")
             else:
                 global user
-                response = FirebaseConfig().login(username_entry.get(), password_entry.get())                           
-
+                if "@gmail.com" not in username_entry.get():
+                    Email = f'{username_entry.get()}@gmail.com'
+                    response = FirebaseConfig().login(Email, password_entry.get())
+                else:
+                    Email = username_entry.get()
+                    response = FirebaseConfig().login(Email, password_entry.get())
                 if response:
                     tok = response['idToken']
                     complete_account_info = FirebaseConfig().auth.get_account_info(tok)
-                    user = FirebaseConfig().auth.sign_in_with_email_and_password(username_entry.get(), password_entry.get())
+                    user = FirebaseConfig().auth.sign_in_with_email_and_password(Email, password_entry.get())
                     email_verified = complete_account_info['users'][0]['emailVerified']
-                    
+
                     if email_verified:
                         controller.app_login_cred['email'].set(response['email'])
                         controller.app_login_cred['idToken'].set(response['idToken'])
                         controller.app_login_cred['localId'].set(user['localId'])
                         #FirebaseConfig().auth.refresh(user['refreshToken'])
-                        messagebox.showinfo ("", "Login Success")
                         username_entry.delete(0, END)
                         password_entry.delete(0, END)
                         command = controller.show_frame("MainMenu")
+
+                        db = FirebaseConfig().firebase.database()
+                        info = db.child("my-info").child(user['localId']).get()
+                        info_values = list(info.val().values())
+                        global user_name
+                        user_name = info_values[1]
+                        welcome_label(user_name)
+
                         # Pulling Users Data
                         try:
                             query_database()
@@ -161,7 +174,7 @@ class Login(customtkinter.CTkFrame):
                             query_database_shopping()
                         except:
                             pass
-            
+
                     else:
                          pass
                 else:

@@ -1,5 +1,6 @@
 from Pages import *
 
+
 class FirebaseConfig:
     def __init__(self):
         global user
@@ -19,10 +20,19 @@ class FirebaseConfig:
         self.app_login_cred = {'email': StringVar(), 'idToken': StringVar(), 'localId': StringVar()}
 
 
-    def register(self, username, password):
+    def register(self, username, password, name):
         try:
             user = self.auth.create_user_with_email_and_password(username, password)
             self.auth.send_email_verification(user['idToken'])
+            user_info =  {
+                        'Email':username,
+                        'Name': name,
+                        'TheID': user['localId'],
+                        'Username':username.replace("@gmail.com", ""),
+                    }
+            db = FirebaseConfig().firebase.database()
+            db.child("my-info").child(user['localId']).set(user_info)
+
             return True
         except:
             return False
@@ -31,6 +41,7 @@ class FirebaseConfig:
         try:
             global user
             user = self.auth.sign_in_with_email_and_password(username, password)
+
             return user
         except:
             return False
@@ -82,14 +93,13 @@ class PantryList(customtkinter.CTkFrame):
             aList.heading(strHdr, text=strHdr.title(), sort_by=List_SortType[record])
             aList.column(List_header[record], width=List_ColWidth[record], stretch=True, anchor=List_ColAlignment[record])
 
-        customtkinter.CTkButton(self, text="Show More Options", text_font = ("TkHeadingtext_font", 20) , cursor = "hand2",
+        customtkinter.CTkButton(self, text="Show Options", text_font = ("TkHeadingtext_font", 20) , cursor = "hand2",
                 command = lambda:controller.show_frame("OptionsPantryList")
             ).pack(pady=(660, 0))
 
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:controller.show_frame("MainMenu")
             ).place(relx=0.985, rely=0.97, anchor= "se")
-
 
 class OptionsPantryList(customtkinter.CTkFrame):
     def __init__(self, master, controller):
@@ -110,7 +120,7 @@ class OptionsPantryList(customtkinter.CTkFrame):
         global intitial_weight
         global update_button
         global delete_button
-
+        global unix_time
         # Corner Picture (logo)
         logo_img = Image.open("assets/images/WVU.png")
         logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)
@@ -168,14 +178,19 @@ class OptionsPantryList(customtkinter.CTkFrame):
 
         exdate_label = customtkinter.CTkLabel(self, text = "Exp. Date: ", text_font=("TkHeadingtext_font", 18, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
         exdate_label.place(x=404, y=600, anchor="e")
-        exdate_entry = DateEntry(self, selectmode="day", font = ("TkHeadingtext_font", 20), date_pattern = 'mm-dd-y')
+        exdate_entry = DateEntry(self, selectmode="day", font = ("TkHeadingtext_font", 20), date_pattern = 'mm/dd/y')
         exdate_entry.place(x=600, y=600, anchor="e")
+
+        date_format = datetime.datetime.strptime(exdate_entry.get(),
+                                                 "%m/%d/%Y")
+        unix_time = datetime.datetime.timestamp(date_format)
+        # print(unix_time)
+        #date_time.strftime('%Y-%m-%d'))
 
         amount_label = customtkinter.CTkLabel(self, text = "Amount: ", text_font=("TkHeadingtext_font", 18, "bold"), text_color = ("#1e3d6d", "#ebe7e4"))
         amount_label.place(x=825, y=600, anchor="e")
         amount_entry = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
         amount_entry.place(x=1007, y=600, anchor="e")
-
         barcode_entry = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 150, justify = CENTER)
         barcode_entry.place(x=1190, y=430, anchor="e")
 
@@ -215,6 +230,7 @@ class OptionsPantryList(customtkinter.CTkFrame):
 
         intitial_weight = 1500
         exdate_entry.delete(0,END)
+
 
 class NonPantryList(customtkinter.CTkFrame):
     def __init__(self, master, controller):
@@ -337,7 +353,7 @@ class OptionsNonPantryList(customtkinter.CTkFrame):
         brand_entry_non = customtkinter.CTkEntry(self, text_font=("TkHeadingtext_font", 20), width = 200, justify = CENTER)
         brand_entry_non.place(x=1007, y=550, anchor="e")
 
-        exdate_entry_non = DateEntry(self, selectmode="day", font = ("TkHeadingtext_font", 20), date_pattern = 'mm-dd-y')
+        exdate_entry_non = DateEntry(self, selectmode="day", font = ("TkHeadingtext_font", 20), date_pattern = 'mm/dd/y')
         exdate_entry_non.place(x=600, y=600, anchor="e")
 
 
@@ -353,11 +369,9 @@ class OptionsNonPantryList(customtkinter.CTkFrame):
 
         # Update Items Button
         update_button_non = customtkinter.CTkButton(self, image=edit_image,  text="", width=60, height=60, corner_radius=10, command = update_record_non)
-        # update_button_non.place(x=1260, y=220, anchor="e")
 
         # Delete one Items Button
         delete_button_non = customtkinter.CTkButton(self, image=delete_image,  text="", width=60, height=60, corner_radius=10, command = delete_item_non)
-        # delete_button_non.place(x=1260, y=290, anchor="e")
 
         # Delete all Items Button
         # delete_all_button = customtkinter.CTkButton(self, image=trash_image,  text="", width=60, height=60, corner_radius=10, command = delete_all_non)
@@ -367,7 +381,7 @@ class OptionsNonPantryList(customtkinter.CTkFrame):
         barcode_button.place(x=1260, y=430, anchor="e")
 
         # Clear all Entry Boxes Button
-        clear_button = customtkinter.CTkButton(self, text = "Clear Entry", command = clear_entries, text_font=("TkHeadingtext_font", 20), width = 180)
+        clear_button = customtkinter.CTkButton(self, text = "Clear", command = clear_entries, text_font=("TkHeadingtext_font", 20), width = 180)
         clear_button.place(x=1260, y=580, anchor="e")
 
         customtkinter.CTkButton(self, text="Hide Options", text_font = ("TkHeadingtext_font", 20) , cursor = "hand2",
@@ -509,14 +523,10 @@ class OptionsSuggestedShopping(customtkinter.CTkFrame):
         AddItems_button.place(x=1260, y=150, anchor="e")
 
         # Update Items Button
-        update_button_Shopping = customtkinter.CTkButton(self, image=edit_image,  text="", width=60, height=60, corner_radius=10,
-                                                         state = 'disabled', fg_color = ("#0a172b", "#bc891d"), command = update_record_Shopping)
-        update_button_Shopping.place(x=1260, y=220, anchor="e")
+        update_button_Shopping = customtkinter.CTkButton(self, image=edit_image,  text="", width=60, height=60, corner_radius=10, command = update_record_Shopping)
 
         # Delete one Items Button
-        delete_button_Shopping = customtkinter.CTkButton(self, image=delete_image,  text="", width=60, height=60, corner_radius=10,
-                                                         state = 'disabled', fg_color = ("#0a172b", "#bc891d"), command = delete_item_Shopping)
-        delete_button_Shopping.place(x=1260, y=290, anchor="e")
+        delete_button_Shopping = customtkinter.CTkButton(self, image=delete_image,  text="", width=60, height=60, corner_radius=10, command = delete_item_Shopping)
 
         # Delete all Items Button
         # delete_all_button = customtkinter.CTkButton(self, image=trash_image,  text="", width=60, height=60, corner_radius=10, command = delete_all_Shopping)
@@ -550,63 +560,59 @@ class RecipeSuggestions(customtkinter.CTkFrame):
         self.grid_columnconfigure(1,  weight = 4)
         # self.grid(padx=20)
 
-        global Recipe01_name_Entry
-        global Recipe01_items_Entry
-        global Recipe01_cookingtime_Entry
-        global Recipe01_calories_Entry
-        global Recipe01_servings_Entry
-        global Recipe01_inst_Entry
-        global recipe1_btn
-        global recipe2_btn
-        Recipe01_name_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 25),
+        global Recipe_name_Entry
+        global Recipe_items_Entry
+        global Recipe_cookingtime_Entry
+        global Recipe_calories_Entry
+        global Recipe_servings_Entry
+        global Recipe_inst_Entry
+        global next_btn
+
+        Recipe_name_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 25),
                                                     text_color = ("#1e3d6d", "#ebe7e4"))
-        Recipe01_name_Entry.grid(row=0, column = 0, columnspan = 2)
+        Recipe_name_Entry.grid(row=0, column = 0, columnspan = 2)
 
 
         customtkinter.CTkLabel(self, text="Items:", text_font=("TkHeadingtext_font", 15),
                                 text_color = ("#1e3d6d", "#ebe7e4")).grid(row=1, column = 0, sticky="E")
-        Recipe01_items_Entry = Text(self, font=("TkHeadingtext_font", 15),  width = 40, height = 7, fg = "white",
+        Recipe_items_Entry = Text(self, font=("TkHeadingtext_font", 15),  width = 40, height = 7, fg = "white",
                                     bg = "#403c3c", relief = GROOVE, padx = 20, pady =20, bd =0)
-        Recipe01_items_Entry.grid(row=1, column = 1, sticky="W")
+        Recipe_items_Entry.grid(row=1, column = 1, sticky="W")
 
 
         customtkinter.CTkLabel(self, text="Cooking Time:", text_font=("TkHeadingtext_font", 15),
                                 text_color = ("#1e3d6d", "#ebe7e4")).grid(row=2, column = 0, sticky="E")
-        Recipe01_cookingtime_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 15), fg_color= "#403c3c")
-        Recipe01_cookingtime_Entry.grid(row=2, column = 1, sticky="W")
+        Recipe_cookingtime_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 15), fg_color= "#403c3c")
+        Recipe_cookingtime_Entry.grid(row=2, column = 1, sticky="W")
 
 
         customtkinter.CTkLabel(self, text="Calories:", text_font=("TkHeadingtext_font", 15),
                                 text_color = ("#1e3d6d", "#ebe7e4")).grid(row=3, column = 0, sticky="E")
-        Recipe01_calories_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 15), fg_color= "#403c3c")
-        Recipe01_calories_Entry.grid(row=3, column = 1, sticky="W")
+        Recipe_calories_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 15), fg_color= "#403c3c")
+        Recipe_calories_Entry.grid(row=3, column = 1, sticky="W")
 
 
         customtkinter.CTkLabel(self, text="Servings:", text_font=("TkHeadingtext_font", 15),
                                 text_color = ("#1e3d6d", "#ebe7e4")).grid(row=4, column = 0, sticky="E")
-        Recipe01_servings_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 15), fg_color= "#403c3c")
-        Recipe01_servings_Entry.grid(row=4, column = 1, sticky="W")
+        Recipe_servings_Entry = customtkinter.CTkLabel(self, text="", text_font=("TkHeadingtext_font", 15), fg_color= "#403c3c")
+        Recipe_servings_Entry.grid(row=4, column = 1, sticky="W")
 
 
         customtkinter.CTkLabel(self, text="Instructions:", text_font=("TkHeadingtext_font", 15),
                                 text_color = ("#1e3d6d", "#ebe7e4")).grid(row=5, column = 0, sticky="E")
-        Recipe01_inst_Entry = Text(self, font=("TkHeadingtext_font", 15),  width = 75, height = 5, fg = "white",
+        Recipe_inst_Entry = Text(self, font=("TkHeadingtext_font", 15),  width = 90, height = 5, fg = "white",
                                     bg = "#403c3c", relief = GROOVE, padx = 20, pady =20, bd =0)
-        Recipe01_inst_Entry.grid(row=5, column = 1, sticky="W")
+        Recipe_inst_Entry.grid(row=5, column = 1, sticky="W")
 
         customtkinter.CTkButton(self, text="Go Back", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
                 command=lambda:[controller.show_frame("MainMenu"), cleanup()]
             ).place(relx=0.985, rely=0.97, anchor= "se")
 
-
-        recipe2_btn = customtkinter.CTkButton(self, text="Next Recipe", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
-                                command=recipes2)
-        recipe2_btn.place(relx=0.985, rely=0.2, anchor= "se")
-
-        recipe1_btn = customtkinter.CTkButton(self, text="Next Recipe", text_font=("TkHeadingtext_font", 20) , cursor="hand2",
-                                command=recipes1)
+        next_btn = customtkinter.CTkButton(self, text="Next Recipe", text_font=("TkHeadingtext_font", 20) , cursor="hand2")
+        next_btn.place(relx=0.985, rely=0.2, anchor= "se")
 
         recipes1()
+
 
 def recipes1():
 
@@ -618,63 +624,63 @@ def recipes1():
     Recipe01_values = list(Recipe01_data.values())
 
     Recipe01_name = Recipe01_values[0]
-    Recipe01_name_Entry.configure(text = Recipe01_name)
+    Recipe_name_Entry.configure(text = Recipe01_name)
     # print(Recipe01_name)
 
     Recipe01_items = list(Recipe01_values[1].values())
-    Recipe01_items_Entry.config(state='normal')
-    Recipe01_items_Entry.delete(1.0, END)
+    Recipe_items_Entry.config(state='normal')
+    Recipe_items_Entry.delete(1.0, END)
     #print(Recipe01_items)
     try:
-        Recipe01_items_Entry.insert(1.0 , f'1. {Recipe01_items[0]}\n')
+        Recipe_items_Entry.insert(1.0 , f'1. {Recipe01_items[0]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(2.0 , f'2. {Recipe01_items[1]}\n')
+        Recipe_items_Entry.insert(2.0 , f'2. {Recipe01_items[1]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(3.0 , f'3. {Recipe01_items[2]}\n')
+        Recipe_items_Entry.insert(3.0 , f'3. {Recipe01_items[2]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(4.0 , f'4. {Recipe01_items[3]}\n')
+        Recipe_items_Entry.insert(4.0 , f'4. {Recipe01_items[3]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(5.0 , f'5. {Recipe01_items[4]}\n')
+        Recipe_items_Entry.insert(5.0 , f'5. {Recipe01_items[4]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(6.0 , f'6. {Recipe01_items[5]}\n')
+        Recipe_items_Entry.insert(6.0 , f'6. {Recipe01_items[5]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(7.0 , f'7. {Recipe01_items[6]}\n')
+        Recipe_items_Entry.insert(7.0 , f'7. {Recipe01_items[6]}\n')
     except:
         pass
-    Recipe01_items_Entry.config(state='disabled')
+    Recipe_items_Entry.config(state='disabled')
 
     Recipe01_cookingtime = Recipe01_values[2]
-    Recipe01_cookingtime_Entry.configure(text = Recipe01_cookingtime)
+    Recipe_cookingtime_Entry.configure(text = Recipe01_cookingtime)
     #print(Recipe01_cookingtime)
 
     Recipe01_calories = Recipe01_values[3]
-    Recipe01_calories_Entry.configure(text = Recipe01_calories)
+    Recipe_calories_Entry.configure(text = Recipe01_calories)
     #print(Recipe01_calories)
 
     Recipe01_servings = Recipe01_values[4]
-    Recipe01_servings_Entry.configure(text = Recipe01_servings)
+    Recipe_servings_Entry.configure(text = Recipe01_servings)
     #print(Recipe01_servings)
 
     Recipe01_instruction = Recipe01_values[5]
-    Recipe01_inst_Entry.config(state='normal')
-    Recipe01_inst_Entry.delete(1.0, END)
-    Recipe01_inst_Entry.insert(1.0, Recipe01_instruction)
-    Recipe01_inst_Entry.config(state='disabled')
+    Recipe_inst_Entry.config(state='normal')
+    Recipe_inst_Entry.delete(1.0, END)
+    Recipe_inst_Entry.insert(1.0, Recipe01_instruction)
+    Recipe_inst_Entry.config(state='disabled')
     # print(Recipe01_instruction)
-    recipe1_btn.place_forget()
-    recipe2_btn.place(relx=0.985, rely=0.2, anchor= "se")
+
+    next_btn.configure(command=recipes2)
 
 def recipes2():
 
@@ -686,65 +692,617 @@ def recipes2():
     Recipe02_values = list(Recipe02_data.values())
 
     Recipe02_name = Recipe02_values[0]
-    Recipe01_name_Entry.configure(text = Recipe02_name)
+    Recipe_name_Entry.configure(text = Recipe02_name)
     # print(Recipe02_name)
 
     Recipe02_items = list(Recipe02_values[1].values())
-    Recipe01_items_Entry.config(state='normal')
-    Recipe01_items_Entry.delete(1.0, END)
+    Recipe_items_Entry.config(state='normal')
+    Recipe_items_Entry.delete(1.0, END)
     #print(Recipe02_items)
     try:
-        Recipe01_items_Entry.insert(1.0 , f'1. {Recipe02_items[0]}\n')
+        Recipe_items_Entry.insert(1.0 , f'1. {Recipe02_items[0]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(2.0 , f'2. {Recipe02_items[1]}\n')
+        Recipe_items_Entry.insert(2.0 , f'2. {Recipe02_items[1]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(3.0 , f'3. {Recipe02_items[2]}\n')
+        Recipe_items_Entry.insert(3.0 , f'3. {Recipe02_items[2]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(4.0 , f'4. {Recipe02_items[3]}\n')
+        Recipe_items_Entry.insert(4.0 , f'4. {Recipe02_items[3]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(5.0 , f'5. {Recipe02_items[4]}\n')
+        Recipe_items_Entry.insert(5.0 , f'5. {Recipe02_items[4]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(6.0 , f'6. {Recipe02_items[5]}\n')
+        Recipe_items_Entry.insert(6.0 , f'6. {Recipe02_items[5]}\n')
     except:
         pass
     try:
-        Recipe01_items_Entry.insert(7.0 , f'7. {Recipe02_items[6]}\n')
+        Recipe_items_Entry.insert(7.0 , f'7. {Recipe02_items[6]}\n')
     except:
         pass
-    Recipe01_items_Entry.config(state='disabled')
+    Recipe_items_Entry.config(state='disabled')
 
     Recipe02_cookingtime = Recipe02_values[2]
-    Recipe01_cookingtime_Entry.configure(text = Recipe02_cookingtime)
+    Recipe_cookingtime_Entry.configure(text = Recipe02_cookingtime)
     #print(Recipe02_cookingtime)
 
     Recipe02_calories = Recipe02_values[3]
-    Recipe01_calories_Entry.configure(text = Recipe02_calories)
+    Recipe_calories_Entry.configure(text = Recipe02_calories)
     #print(Recipe02_calories)
 
     Recipe02_servings = Recipe02_values[4]
-    Recipe01_servings_Entry.configure(text = Recipe02_servings)
+    Recipe_servings_Entry.configure(text = Recipe02_servings)
     #print(Recipe02_servings)
 
 
     Recipe02_instruction = Recipe02_values[5]
-    Recipe01_inst_Entry.config(state='normal')
-    Recipe01_inst_Entry.delete(1.0, END)
-    Recipe01_inst_Entry.insert(1.0, Recipe02_instruction)
-    Recipe01_inst_Entry.config(state='disabled')
+    Recipe_inst_Entry.config(state='normal')
+    Recipe_inst_Entry.delete(1.0, END)
+    Recipe_inst_Entry.insert(1.0, Recipe02_instruction)
+    Recipe_inst_Entry.config(state='disabled')
     # print(Recipe02_instruction)
-    recipe2_btn.place_forget()
-    recipe1_btn.place(relx=0.985, rely=0.2, anchor= "se")
 
+    next_btn.configure(command=recipes3)
+
+def recipes3():
+
+    # pull data
+    db = FirebaseConfig().firebase.database()
+
+    Recipe03 = db.child("recipes").child("global").child("Recipe_03").get()
+    Recipe03_data = Recipe03.val()
+    Recipe03_values = list(Recipe03_data.values())
+
+    Recipe03_name = Recipe03_values[0]
+    Recipe_name_Entry.configure(text = Recipe03_name)
+    # print(Recipe03_name)
+
+    Recipe03_items = list(Recipe03_values[1].values())
+    Recipe_items_Entry.config(state='normal')
+    Recipe_items_Entry.delete(1.0, END)
+    #print(Recipe03_items)
+    try:
+        Recipe_items_Entry.insert(1.0 , f'1. {Recipe03_items[0]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(2.0 , f'2. {Recipe03_items[1]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(3.0 , f'3. {Recipe03_items[2]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(4.0 , f'4. {Recipe03_items[3]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(5.0 , f'5. {Recipe03_items[4]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(6.0 , f'6. {Recipe03_items[5]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(7.0 , f'7. {Recipe03_items[6]}\n')
+    except:
+        pass
+    Recipe_items_Entry.config(state='disabled')
+
+    Recipe03_cookingtime = Recipe03_values[2]
+    Recipe_cookingtime_Entry.configure(text = Recipe03_cookingtime)
+    #print(Recipe03_cookingtime)
+
+    Recipe03_calories = Recipe03_values[3]
+    Recipe_calories_Entry.configure(text = Recipe03_calories)
+    #print(Recipe03_calories)
+
+    Recipe03_servings = Recipe03_values[4]
+    Recipe_servings_Entry.configure(text = Recipe03_servings)
+    #print(Recipe03_servings)
+
+
+    Recipe03_instruction = Recipe03_values[5]
+    Recipe_inst_Entry.config(state='normal')
+    Recipe_inst_Entry.delete(1.0, END)
+    Recipe_inst_Entry.insert(1.0, Recipe03_instruction)
+    Recipe_inst_Entry.config(state='disabled')
+    # print(Recipe03_instruction)
+
+    next_btn.configure(command=recipes4)
+
+def recipes4():
+
+    # pull data
+    db = FirebaseConfig().firebase.database()
+
+    Recipe04 = db.child("recipes").child("global").child("Recipe_04").get()
+    Recipe04_data = Recipe04.val()
+    Recipe04_values = list(Recipe04_data.values())
+
+    Recipe04_name = Recipe04_values[0]
+    Recipe_name_Entry.configure(text = Recipe04_name)
+    # print(Recipe04_name)
+
+    Recipe04_items = list(Recipe04_values[1].values())
+    Recipe_items_Entry.config(state='normal')
+    Recipe_items_Entry.delete(1.0, END)
+    #print(Recipe04_items)
+    try:
+        Recipe_items_Entry.insert(1.0 , f'1. {Recipe04_items[0]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(2.0 , f'2. {Recipe04_items[1]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(3.0 , f'3. {Recipe04_items[2]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(4.0 , f'4. {Recipe04_items[3]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(5.0 , f'5. {Recipe04_items[4]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(6.0 , f'6. {Recipe04_items[5]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(7.0 , f'7. {Recipe04_items[6]}\n')
+    except:
+        pass
+    Recipe_items_Entry.config(state='disabled')
+
+    Recipe04_cookingtime = Recipe04_values[2]
+    Recipe_cookingtime_Entry.configure(text = Recipe04_cookingtime)
+    #print(Recipe04_cookingtime)
+
+    Recipe04_calories = Recipe04_values[3]
+    Recipe_calories_Entry.configure(text = Recipe04_calories)
+    #print(Recipe04_calories)
+
+    Recipe04_servings = Recipe04_values[4]
+    Recipe_servings_Entry.configure(text = Recipe04_servings)
+    #print(Recipe04_servings)
+
+
+    Recipe04_instruction = Recipe04_values[5]
+    Recipe_inst_Entry.config(state='normal')
+    Recipe_inst_Entry.delete(1.0, END)
+    Recipe_inst_Entry.insert(1.0, Recipe04_instruction)
+    Recipe_inst_Entry.config(state='disabled')
+    # print(Recipe04_instruction)
+
+    next_btn.configure(command=recipes5)
+
+def recipes5():
+
+    # pull data
+    db = FirebaseConfig().firebase.database()
+
+    Recipe05 = db.child("recipes").child("global").child("Recipe_05").get()
+    Recipe05_data = Recipe05.val()
+    Recipe05_values = list(Recipe05_data.values())
+
+    Recipe05_name = Recipe05_values[0]
+    Recipe_name_Entry.configure(text = Recipe05_name)
+    # print(Recipe05_name)
+
+    Recipe05_items = list(Recipe05_values[1].values())
+    Recipe_items_Entry.config(state='normal')
+    Recipe_items_Entry.delete(1.0, END)
+    #print(Recipe05_items)
+    try:
+        Recipe_items_Entry.insert(1.0 , f'1. {Recipe05_items[0]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(2.0 , f'2. {Recipe05_items[1]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(3.0 , f'3. {Recipe05_items[2]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(4.0 , f'4. {Recipe05_items[3]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(5.0 , f'5. {Recipe05_items[4]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(6.0 , f'6. {Recipe05_items[5]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(7.0 , f'7. {Recipe05_items[6]}\n')
+    except:
+        pass
+    Recipe_items_Entry.config(state='disabled')
+
+    Recipe05_cookingtime = Recipe05_values[2]
+    Recipe_cookingtime_Entry.configure(text = Recipe05_cookingtime)
+    #print(Recipe05_cookingtime)
+
+    Recipe05_calories = Recipe05_values[3]
+    Recipe_calories_Entry.configure(text = Recipe05_calories)
+    #print(Recipe05_calories)
+
+    Recipe05_servings = Recipe05_values[4]
+    Recipe_servings_Entry.configure(text = Recipe05_servings)
+    #print(Recipe05_servings)
+
+
+    Recipe05_instruction = Recipe05_values[5]
+    Recipe_inst_Entry.config(state='normal')
+    Recipe_inst_Entry.delete(1.0, END)
+    Recipe_inst_Entry.insert(1.0, Recipe05_instruction)
+    Recipe_inst_Entry.config(state='disabled')
+    # print(Recipe05_instruction)
+
+    next_btn.configure(command=recipes6)
+
+def recipes6():
+
+    # pull data
+    db = FirebaseConfig().firebase.database()
+
+    Recipe06 = db.child("recipes").child("global").child("Recipe_06").get()
+    Recipe06_data = Recipe06.val()
+    Recipe06_values = list(Recipe06_data.values())
+
+    Recipe06_name = Recipe06_values[0]
+    Recipe_name_Entry.configure(text = Recipe06_name)
+    # print(Recipe06_name)
+
+    Recipe06_items = list(Recipe06_values[1].values())
+    Recipe_items_Entry.config(state='normal')
+    Recipe_items_Entry.delete(1.0, END)
+    #print(Recipe06_items)
+    try:
+        Recipe_items_Entry.insert(1.0 , f'1. {Recipe06_items[0]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(2.0 , f'2. {Recipe06_items[1]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(3.0 , f'3. {Recipe06_items[2]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(4.0 , f'4. {Recipe06_items[3]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(5.0 , f'5. {Recipe06_items[4]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(6.0 , f'6. {Recipe06_items[5]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(7.0 , f'7. {Recipe06_items[6]}\n')
+    except:
+        pass
+    Recipe_items_Entry.config(state='disabled')
+
+    Recipe06_cookingtime = Recipe06_values[2]
+    Recipe_cookingtime_Entry.configure(text = Recipe06_cookingtime)
+    #print(Recipe06_cookingtime)
+
+    Recipe06_calories = Recipe06_values[3]
+    Recipe_calories_Entry.configure(text = Recipe06_calories)
+    #print(Recipe06_calories)
+
+    Recipe06_servings = Recipe06_values[4]
+    Recipe_servings_Entry.configure(text = Recipe06_servings)
+    #print(Recipe06_servings)
+
+
+    Recipe06_instruction = Recipe06_values[5]
+    Recipe_inst_Entry.config(state='normal')
+    Recipe_inst_Entry.delete(1.0, END)
+    Recipe_inst_Entry.insert(1.0, Recipe06_instruction)
+    Recipe_inst_Entry.config(state='disabled')
+    # print(Recipe06_instruction)
+
+    next_btn.configure(command=recipes7)
+
+def recipes7():
+
+    # pull data
+    db = FirebaseConfig().firebase.database()
+
+    Recipe07 = db.child("recipes").child("global").child("Recipe_07").get()
+    Recipe07_data = Recipe07.val()
+    Recipe07_values = list(Recipe07_data.values())
+
+    Recipe07_name = Recipe07_values[0]
+    Recipe_name_Entry.configure(text = Recipe07_name)
+    # print(Recipe07_name)
+
+    Recipe07_items = list(Recipe07_values[1].values())
+    Recipe_items_Entry.config(state='normal')
+    Recipe_items_Entry.delete(1.0, END)
+    #print(Recipe07_items)
+    try:
+        Recipe_items_Entry.insert(1.0 , f'1. {Recipe07_items[0]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(2.0 , f'2. {Recipe07_items[1]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(3.0 , f'3. {Recipe07_items[2]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(4.0 , f'4. {Recipe07_items[3]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(5.0 , f'5. {Recipe07_items[4]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(6.0 , f'6. {Recipe07_items[5]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(7.0 , f'7. {Recipe07_items[6]}\n')
+    except:
+        pass
+    Recipe_items_Entry.config(state='disabled')
+
+    Recipe07_cookingtime = Recipe07_values[2]
+    Recipe_cookingtime_Entry.configure(text = Recipe07_cookingtime)
+    #print(Recipe07_cookingtime)
+
+    Recipe07_calories = Recipe07_values[3]
+    Recipe_calories_Entry.configure(text = Recipe07_calories)
+    #print(Recipe07_calories)
+
+    Recipe07_servings = Recipe07_values[4]
+    Recipe_servings_Entry.configure(text = Recipe07_servings)
+    #print(Recipe07_servings)
+
+
+    Recipe07_instruction = Recipe07_values[5]
+    Recipe_inst_Entry.config(state='normal')
+    Recipe_inst_Entry.delete(1.0, END)
+    Recipe_inst_Entry.insert(1.0, Recipe07_instruction)
+    Recipe_inst_Entry.config(state='disabled')
+    # print(Recipe07_instruction)
+
+    next_btn.configure(command=recipes8)
+
+def recipes8():
+
+    # pull data
+    db = FirebaseConfig().firebase.database()
+
+    Recipe08 = db.child("recipes").child("global").child("Recipe_08").get()
+    Recipe08_data = Recipe08.val()
+    Recipe08_values = list(Recipe08_data.values())
+
+    Recipe08_name = Recipe08_values[0]
+    Recipe_name_Entry.configure(text = Recipe08_name)
+    # print(Recipe08_name)
+
+    Recipe08_items = list(Recipe08_values[1].values())
+    Recipe_items_Entry.config(state='normal')
+    Recipe_items_Entry.delete(1.0, END)
+    #print(Recipe08_items)
+    try:
+        Recipe_items_Entry.insert(1.0 , f'1. {Recipe08_items[0]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(2.0 , f'2. {Recipe08_items[1]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(3.0 , f'3. {Recipe08_items[2]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(4.0 , f'4. {Recipe08_items[3]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(5.0 , f'5. {Recipe08_items[4]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(6.0 , f'6. {Recipe08_items[5]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(7.0 , f'7. {Recipe08_items[6]}\n')
+    except:
+        pass
+    Recipe_items_Entry.config(state='disabled')
+
+    Recipe08_cookingtime = Recipe08_values[2]
+    Recipe_cookingtime_Entry.configure(text = Recipe08_cookingtime)
+    #print(Recipe08_cookingtime)
+
+    Recipe08_calories = Recipe08_values[3]
+    Recipe_calories_Entry.configure(text = Recipe08_calories)
+    #print(Recipe08_calories)
+
+    Recipe08_servings = Recipe08_values[4]
+    Recipe_servings_Entry.configure(text = Recipe08_servings)
+    #print(Recipe08_servings)
+
+
+    Recipe08_instruction = Recipe08_values[5]
+    Recipe_inst_Entry.config(state='normal')
+    Recipe_inst_Entry.delete(1.0, END)
+    Recipe_inst_Entry.insert(1.0, Recipe08_instruction)
+    Recipe_inst_Entry.config(state='disabled')
+    # print(Recipe08_instruction)
+
+    next_btn.configure(command=recipes9)
+
+def recipes9():
+
+    # pull data
+    db = FirebaseConfig().firebase.database()
+
+    Recipe09 = db.child("recipes").child("global").child("Recipe_09").get()
+    Recipe09_data = Recipe09.val()
+    Recipe09_values = list(Recipe09_data.values())
+
+    Recipe09_name = Recipe09_values[0]
+    Recipe_name_Entry.configure(text = Recipe09_name)
+    # print(Recipe09_name)
+
+    Recipe09_items = list(Recipe09_values[1].values())
+    Recipe_items_Entry.config(state='normal')
+    Recipe_items_Entry.delete(1.0, END)
+    #print(Recipe09_items)
+    try:
+        Recipe_items_Entry.insert(1.0 , f'1. {Recipe09_items[0]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(2.0 , f'2. {Recipe09_items[1]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(3.0 , f'3. {Recipe09_items[2]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(4.0 , f'4. {Recipe09_items[3]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(5.0 , f'5. {Recipe09_items[4]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(6.0 , f'6. {Recipe09_items[5]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(7.0 , f'7. {Recipe09_items[6]}\n')
+    except:
+        pass
+    Recipe_items_Entry.config(state='disabled')
+
+    Recipe09_cookingtime = Recipe09_values[2]
+    Recipe_cookingtime_Entry.configure(text = Recipe09_cookingtime)
+    #print(Recipe09_cookingtime)
+
+    Recipe09_calories = Recipe09_values[3]
+    Recipe_calories_Entry.configure(text = Recipe09_calories)
+    #print(Recipe09_calories)
+
+    Recipe09_servings = Recipe09_values[4]
+    Recipe_servings_Entry.configure(text = Recipe09_servings)
+    #print(Recipe09_servings)
+
+
+    Recipe09_instruction = Recipe09_values[5]
+    Recipe_inst_Entry.config(state='normal')
+    Recipe_inst_Entry.delete(1.0, END)
+    Recipe_inst_Entry.insert(1.0, Recipe09_instruction)
+    Recipe_inst_Entry.config(state='disabled')
+    # print(Recipe09_instruction)
+
+    next_btn.configure(command=recipes10)
+
+def recipes10():
+
+    # pull data
+    db = FirebaseConfig().firebase.database()
+
+    Recipe10 = db.child("recipes").child("global").child("Recipe_10").get()
+    Recipe10_data = Recipe10.val()
+    Recipe10_values = list(Recipe10_data.values())
+
+    Recipe10_name = Recipe10_values[0]
+    Recipe_name_Entry.configure(text = Recipe10_name)
+    # print(Recipe10_name)
+
+    Recipe10_items = list(Recipe10_values[1].values())
+    Recipe_items_Entry.config(state='normal')
+    Recipe_items_Entry.delete(1.0, END)
+    #print(Recipe10_items)
+    try:
+        Recipe_items_Entry.insert(1.0 , f'1. {Recipe10_items[0]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(2.0 , f'2. {Recipe10_items[1]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(3.0 , f'3. {Recipe10_items[2]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(4.0 , f'4. {Recipe10_items[3]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(5.0 , f'5. {Recipe10_items[4]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(6.0 , f'6. {Recipe10_items[5]}\n')
+    except:
+        pass
+    try:
+        Recipe_items_Entry.insert(7.0 , f'7. {Recipe10_items[6]}\n')
+    except:
+        pass
+    Recipe_items_Entry.config(state='disabled')
+
+    Recipe10_cookingtime = Recipe10_values[2]
+    Recipe_cookingtime_Entry.configure(text = Recipe10_cookingtime)
+    #print(Recipe10_cookingtime)
+
+    Recipe10_calories = Recipe10_values[3]
+    Recipe_calories_Entry.configure(text = Recipe10_calories)
+    #print(Recipe10_calories)
+
+    Recipe10_servings = Recipe10_values[4]
+    Recipe_servings_Entry.configure(text = Recipe10_servings)
+    #print(Recipe10_servings)
+
+
+    Recipe10_instruction = Recipe10_values[5]
+    Recipe_inst_Entry.config(state='normal')
+    Recipe_inst_Entry.delete(1.0, END)
+    Recipe_inst_Entry.insert(1.0, Recipe10_instruction)
+    Recipe_inst_Entry.config(state='disabled')
+    # print(Recipe10_instruction)
+
+    next_btn.configure(command=recipes1)
+                    
 def reset_settings():
     # this is for logging out/reset
 
@@ -813,7 +1371,6 @@ def refresh():
     except:
         pass
 
-
 def query_database():
     # pull data
     db = FirebaseConfig().firebase.database()
@@ -826,8 +1383,8 @@ def query_database():
                                         datalist[0],
                                         datalist[1],
                                         datalist[2],
-                                        f'{int((int(datalist[3])/datalist[4])*100)}%',
-                                        datalist[6]
+                                        f'{int((int(datalist[5])/datalist[6])*100)}%',
+                                        datalist[8]
                                         )
                     )
 
@@ -835,8 +1392,8 @@ def query_database():
                                         datalist[0],
                                         datalist[1],
                                         datalist[2],
-                                        f'{int((int(datalist[3])/datalist[4])*100)}%',
-                                        datalist[6]
+                                        f'{int((int(datalist[5])/datalist[6])*100)}%',
+                                        datalist[8]
                                         )
                     )
 
@@ -896,16 +1453,16 @@ def clear_entries():
     name_entry_non.delete(0, END)
     brand_entry_non.delete(0, END)
     exdate_entry_non.delete(0, END)
+    oid_entry_non.delete(0, END)
     barcode_entry_non.delete(0, END)
     update_button_non.place_forget()
     delete_button_non.place_forget()
 
-    oid_entry_non.delete(0, END)
     name_entry_Shopping.delete(0, END)
     brand_entry_Shopping.delete(0, END)
     oid_entry_Shopping.delete(0, END)
-    update_button_Shopping.configure(state = 'disabled', fg_color = ("#0a172b", "#bc891d"))
-    delete_button_Shopping.configure(state = 'disabled', fg_color = ("#0a172b", "#bc891d"))
+    update_button_Shopping.place_forget()
+    delete_button_Shopping.place_forget()
 
     deselect()
 
@@ -942,69 +1499,69 @@ def add_record(): # adds data to the table (List)
     elif int(amount_entry.get())>1500:
         messagebox.showerror("", "The current amount cannot be greater than 1500 \nThis is for testing only")
     else:
-        data =  {'A_Name': name_entry.get(),
-                'B_Brand': brand_entry.get(),
-                'C_ExpirationDate': exdate_entry.get(),
-                'D_CurrentWeight': amount_entry.get(),
-                'E_InitialWeight': intitial_weight,
-                'F_GridLocation': "1"
+        data =  {
+                    'A_Name': name_entry.get(),
+                    'B_Brand': brand_entry.get(),
+                    'C_ExpirationDate': exdate_entry.get(),
+                    'D_WeightPercentage':f'{int((int(amount_entry.get())/intitial_weight)*100)}%',
+                    'E_ExpirationDateUnix': unix_time,
+                    'F_CurrentWeight':amount_entry.get(),
+                    'G_InitialWeight': intitial_weight,
+                    'H_GridLocation': "1",
                 }
         db = FirebaseConfig().firebase.database()
         db.child("pantry-items").child(user['localId']).push(data)
 
         Items = db.child("pantry-items").child(user['localId']).get()
         for itemsData in Items.each():
-
             if itemsData.val() == data:
-                data =  {'A_Name': name_entry.get(),
-                        'B_Brand': brand_entry.get(),
-                        'C_ExpirationDate': exdate_entry.get(),
-                        'D_CurrentWeight': amount_entry.get(),
-                        'E_InitialWeight': intitial_weight,
-                        'F_GridLocation': "1",
-                        'G_ID': itemsData.key(),
+                data =  {
+                            'A_Name': name_entry.get(),
+                            'B_Brand': brand_entry.get(),
+                            'C_ExpirationDate': exdate_entry.get(),
+                            'D_WeightPercentage':f'{int((int(amount_entry.get())/intitial_weight)*100)}%',
+                            'E_ExpirationDateUnix': unix_time,
+                            'F_CurrentWeight':amount_entry.get(),
+                            'G_InitialWeight': intitial_weight,
+                            'H_GridLocation': "1",
+                            'I_ID': itemsData.key()
                         }
                 db.child("pantry-items").child(user['localId']).child(itemsData.key()).update(data)
 
-        List.insert("", "end",
-                            values=(
-                                    name_entry.get(),
-                                    brand_entry.get(),
-                                    exdate_entry.get(),
-                                    f'{int((int(amount_entry.get())/intitial_weight)*100)}%',
-                                    itemsData.key()
-                                    )
-                                )
-        aList.insert("", "end",
-                    values=(
-                            name_entry.get(),
-                            brand_entry.get(),
-                            exdate_entry.get(),
-                            f'{int((int(amount_entry.get())/intitial_weight)*100)}%',
-                            itemsData.key()
-                            )
-                    )
+        # Clear the Treeview, clear entries, and pull database
+        List.delete(*List.get_children())
+        aList.delete(*aList.get_children())
+        query_database()
         cleanup()
 
 def update_record():
-    db = FirebaseConfig().firebase.database()
-    data =  {
-            'A_Name': name_entry.get(),
-            'B_Brand': brand_entry.get(),
-            'C_ExpirationDate': exdate_entry.get(),
-            'D_CurrentWeight': amount_entry.get(),
-            'E_InitialWeight': intitial_weight,
-            'F_GridLocation': "1",
-            'G_ID': oid_entry.get(),
-            }
-    db.child("pantry-items").child(user['localId']).child(oid_entry.get()).update(data)
-    # Clear the Treeview, clear entries, and pull database
-    List.delete(*List.get_children())
-    aList.delete(*aList.get_children())
+    if name_entry.get()=="":
+        messagebox.showerror("", "Item's data needed")
+    elif amount_entry.get()=="":
+        messagebox.showerror("", "You must add the current amount \nThis is for testing only")
+    elif int(amount_entry.get())>1500:
+        messagebox.showerror("", "The current amount cannot be greater than 1500 \nThis is for testing only")
+    else:
+        db = FirebaseConfig().firebase.database()
+        data =  {
+                    'A_Name': name_entry.get(),
+                    'B_Brand': brand_entry.get(),
+                    'C_ExpirationDate': exdate_entry.get(),
+                    'D_WeightPercentage':f'{int((int(amount_entry.get())/intitial_weight)*100)}%',
+                    'E_ExpirationDateUnix': unix_time,
+                    'F_CurrentWeight':amount_entry.get(),
+                    'G_InitialWeight': intitial_weight,
+                    'H_GridLocation': "1",
+                    'I_ID': oid_entry.get()
+                }
+        db.child("pantry-items").child(user['localId']).child(oid_entry.get()).update(data)
+        # Clear the Treeview, clear entries, and pull database
+        List.delete(*List.get_children())
+        aList.delete(*aList.get_children())
 
-    query_database()
-    cleanup()
-    messagebox.showinfo ("", "Item Updated!")
+        query_database()
+        cleanup()
+        messagebox.showinfo ("", "Item Updated!")
 
 def delete_item(): # Delete selected ITEM
     List_selected = List.selection()
@@ -1027,7 +1584,6 @@ def delete_item(): # Delete selected ITEM
 
             query_database()
             cleanup()
-            messagebox.showinfo ("", "Item Deleted!")
 
 def delete_all_items(): # Delets all ITEMS
 
@@ -1125,23 +1681,11 @@ def add_record_non(): # adds data to the table (List)
                         }
                 db.child("non-pantry-items").child(user['localId']).child(itemsData.key()).update(data)
 
-        NonPantryList.insert("", "end",
-                            values=(
-                                    name_entry_non.get(),
-                                    brand_entry_non.get(),
-                                    exdate_entry_non.get(),
-                                    itemsData.key()
-                                    )
-                                )
-        aNonPantryList.insert("", "end",
-                    values=(
-                            name_entry_non.get(),
-                            brand_entry_non.get(),
-                            exdate_entry_non.get(),
-                            itemsData.key()
-                            )
-                    )
-        clear_entries()
+        # Clear the Treeview, clear entries, and pull database
+        NonPantryList.delete(*NonPantryList.get_children())
+        aNonPantryList.delete(*aNonPantryList.get_children())
+        query_database_non()
+        cleanup()
 
 def update_record_non():
     db = FirebaseConfig().firebase.database()
@@ -1178,7 +1722,6 @@ def delete_item_non(): # Delete selected ITEM
             aNonPantryList.delete(*aNonPantryList.get_children())
             query_database_non()
             cleanup()
-            messagebox.showinfo ("", "Item Deleted!")
 
 def delete_all_non(): # Delets all ITEMS
 
@@ -1241,11 +1784,9 @@ def select_record_Shopping(e):
     brand_entry_Shopping.insert(0, values[1])
     oid_entry_Shopping.insert(0, values[2])
 
-    update_button_Shopping.configure(state = "normal", fg_color = ("#122e54", "#ebab24"))
-    # update_button_Shopping.place(x=1260, y=220, anchor="e")
+    update_button_Shopping.place(x=1260, y=220, anchor="e")
 
-    delete_button_Shopping.configure(state = "normal", fg_color = ("#122e54", "#ebab24"))
-    # delete_button_Shopping.place(x=1260, y=290, anchor="e")
+    delete_button_Shopping.place(x=1260, y=290, anchor="e")
 
 def add_record_Shopping(): # adds data to the table (List)
     if name_entry_Shopping.get()=="":
@@ -1267,21 +1808,12 @@ def add_record_Shopping(): # adds data to the table (List)
                         }
                 db.child("shopping-list").child(user['localId']).child(itemsData.key()).update(data)
 
-        ShoppingList.insert("", "end",
-                            values=(
-                                    name_entry_Shopping.get(),
-                                    brand_entry_Shopping.get(),
-                                    itemsData.key()
-                                    )
-                                )
-        aShoppingList.insert("", "end",
-                    values=(
-                            name_entry_Shopping.get(),
-                            brand_entry_Shopping.get(),
-                            itemsData.key()
-                            )
-                    )
-        clear_entries()
+        # Clear the Treeview, clear entries, and pull database
+        ShoppingList.delete(*ShoppingList.get_children())
+        aShoppingList.delete(*aShoppingList.get_children())
+
+        query_database_shopping()
+        cleanup()
 
 def update_record_Shopping():
     db = FirebaseConfig().firebase.database()
@@ -1318,7 +1850,6 @@ def delete_item_Shopping(): # Delete selected ITEM
 
             query_database_shopping()
             cleanup()
-            messagebox.showinfo ("", "Item Deleted!")
 
 def delete_all_Shopping(): # Delets all ITEMS
 

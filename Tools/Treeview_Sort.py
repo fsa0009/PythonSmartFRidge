@@ -27,7 +27,7 @@ class MyTreeview(objTTK.Treeview):
 
         def _sort_by_date(self, column, reverse):
             def _str_to_datetime(string):
-                return objDateTime.datetime.strptime(string, "%m-%d-%Y")
+                return objDateTime.datetime.strptime(string, "%m/%d/%Y")
             # End of _str_to_datetime()
 
             self._sort(column, reverse, _str_to_datetime, self._sort_by_date)
