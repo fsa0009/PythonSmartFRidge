@@ -12,7 +12,7 @@ import json
 import requests
 import sys
 import datetime
-
+from datetime import date
 from tkinter import *
 from tkinter import ttk, messagebox
 

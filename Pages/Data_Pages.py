@@ -1,6 +1,5 @@
 from Pages import *
 
-
 class FirebaseConfig:
     def __init__(self):
         global user
@@ -82,7 +81,7 @@ class PantryList(customtkinter.CTkFrame):
         # Tree View Scrollbar
         tree_Scroll = customtkinter.CTkScrollbar(table_frame, command=aList.yview)
         tree_Scroll.place(x=737, y=0, height=680)
-        aList.configure(yscrollcommand=tree_Scroll.set)
+        aList.configure(yscrollcommand=tree_Scroll.set, selectmode="none")
 
         List_ColWidth = [57, 53, 85, 69]
         List_ColAlignment = ["center", "center", "center", "center"]
@@ -1302,7 +1301,7 @@ def recipes10():
     # print(Recipe10_instruction)
 
     next_btn.configure(command=recipes1)
-                    
+
 def reset_settings():
     # this is for logging out/reset
 
@@ -1378,23 +1377,39 @@ def query_database():
     for itemsData in Items.each():
         data = itemsData.val()
         datalist = list(data.values())
-        # a = OptionsPantryList()
+
+        Amount_Percentage  = int((int(datalist[5])/datalist[6])*100)
+        ExpirationDay = datetime.datetime.strptime(datalist[2],"%m/%d/%Y").date()
+        Today = date.today()
+
+        List.tag_configure('low', background = "red")
+        List.tag_configure('normal', background = "")
+
+        aList.tag_configure('low', background = "red")
+        aList.tag_configure('normal', background = "")
+
+        my_tag = 'normal'
+
+        my_tag = 'low' if Amount_Percentage<=20 or ExpirationDay<Today else 'normal'
+
         List.insert("", "end", values=(
                                         datalist[0],
                                         datalist[1],
                                         datalist[2],
-                                        f'{int((int(datalist[5])/datalist[6])*100)}%',
+                                        f'{Amount_Percentage}%',
                                         datalist[8]
-                                        )
+                                        ),
+                                        tags=my_tag
                     )
 
         aList.insert("", "end", values=(
                                         datalist[0],
                                         datalist[1],
                                         datalist[2],
-                                        f'{int((int(datalist[5])/datalist[6])*100)}%',
+                                        f'{Amount_Percentage}%',
                                         datalist[8]
-                                        )
+                                        ),
+                                        tag=my_tag
                     )
 
 def query_database_non():
@@ -1404,20 +1419,40 @@ def query_database_non():
     for itemsData in Items.each():
         data = itemsData.val()
         datalist = list(data.values())
+
+        ExpirationDay = datetime.datetime.strptime(datalist[2],"%m/%d/%Y").date()
+        Today = date.today()
+
+        NonPantryList.tag_configure('fail', background = "red")
+        NonPantryList.tag_configure('normal', background = "")
+
+        aNonPantryList.tag_configure('fail', background = "red")
+        aNonPantryList.tag_configure('normal', background = "")
+
+        my_tag = 'normal'
+        my_tag = 'fail' if ExpirationDay<Today else 'normal'
+
         NonPantryList.insert("", "end", values=(
                                         datalist[0],
                                         datalist[1],
                                         datalist[2],
                                         datalist[3]
-                                        )
+                                        ),
+                                        tags=my_tag
                     )
         aNonPantryList.insert("", "end", values=(
                                         datalist[0],
                                         datalist[1],
                                         datalist[2],
                                         datalist[3]
-                                        )
+                                        ),
+                                        tags=my_tag
                     )
+        List.tag_configure('low', background = "red")
+        List.tag_configure('normal', background = "")
+
+        aList.tag_configure('low', background = "red")
+        aList.tag_configure('normal', background = "")
 
 def query_database_shopping():
     # pull data
@@ -1628,16 +1663,6 @@ def barcode_scanner():
             messagebox.showerror("Text", "Item is not on the database\n" "Please use manually input instead")
             barcode_entry.delete(0, END)
 
-        # print(f'#0 {item_data_list[0]}')
-        # print(f'#1 {item_data_list[1]}')
-        # print(f'#2 {item_data_list[2]}')
-        # print(f'#3 {item_data_list[3]}')
-        # print(f'#4 {item_data_list[4]}')
-        # print(f'#5 {item_data_list[5]}')
-        # print(f'#6 {item_data_list[6]}')
-        # print(f'#7 {item_data_list[7]}')
-        # print(f'#8 {item_data_list[8]}')
-
 # Functions for Non-Pantry Items
 def select_record_non(e):
     # clear entry boxes
@@ -1698,8 +1723,9 @@ def update_record_non():
     # Clear the Treeview, clear entries, and pull database
     NonPantryList.delete(*NonPantryList.get_children())
     aNonPantryList.delete(*aNonPantryList.get_children())
-    clear_entries()
+
     query_database_non()
+    cleanup()
     messagebox.showinfo ("", "Item Updated!")
 
 def delete_item_non(): # Delete selected ITEM

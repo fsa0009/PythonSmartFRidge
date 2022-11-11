@@ -162,10 +162,11 @@ class Login(customtkinter.CTkFrame):
                         welcome_label(user_name)
 
                         # Pulling Users Data
-                        try:
-                            query_database()
-                        except:
-                            pass
+                        query_database()
+                        # try:
+                        #     query_database()
+                        # except:
+                        #     pass
                         try:
                             query_database_non()
                         except:

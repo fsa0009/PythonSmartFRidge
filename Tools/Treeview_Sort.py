@@ -1,5 +1,6 @@
 from tkinter import ttk as objTTK
 from functools import partial
+import datetime as objDateTime
 
 class MyTreeview(objTTK.Treeview):
         def heading(self, column, sort_by=None, **kwargs):
