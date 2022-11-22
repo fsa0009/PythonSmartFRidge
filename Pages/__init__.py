@@ -12,23 +12,29 @@ import json
 import requests
 import sys
 import datetime
+import serial
+import threading
+from tkinter import StringVar
 from datetime import date
 from tkinter import *
 from tkinter import ttk, messagebox
 
-## Testing
-# import Tools.Login_Keyboard as Login_Keyboard
-# import Tools.List_Keyboard as List_Keyboard
-
-from Tools.tkcalendar.dateentry import DateEntry
 from PIL import ImageTk, Image
+
+# Importing Tools
 from Tools.Treeview_Sort import *
-from Pages.Login_Page import *
-from Pages.Register_Page import *
-from Pages.MainMenu_Page import *
-from Pages.Data_Pages import *
-# from Pages.Recipe_Page import *
-from Pages.Settings_Page import *
+from Tools.Firebase import *
+from Tools.tkcalendar.dateentry import DateEntry
+
+# Importing Pages
+from Pages.Login import *
+from Pages.Register import *
+from Pages.MainMenu import *
+from Pages.Pantry import *
+from Pages.NonPantry import *
+from Pages.Shopping import *
+from Pages.Recipes import *
+from Pages.Settings import *
 
 # Start up theme
 customtkinter.set_appearance_mode("Dark")

@@ -1,5 +1,6 @@
 from Pages import *
 
+
 class MainMenu(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )
@@ -45,13 +46,13 @@ class MainMenu(customtkinter.CTkFrame):
                                             width = 350, command=lambda:controller.show_frame("SuggestedShopping"))
         button_3.pack(pady = 30)
 
-        button_2 = customtkinter.CTkButton(right_frame, text="Recipes", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
+        button_4 = customtkinter.CTkButton(right_frame, text="Recipes", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
                                             width = 350, command=lambda:controller.show_frame("RecipeSuggestions"))
-        button_2.pack()
-
-        button_4 = customtkinter.CTkButton(right_frame, image=settings_image,  text="", width=60, height=60, corner_radius=10,  fg_color= ("#122e54", "#122e54"),
+        button_4.pack()
+        
+        button_5 = customtkinter.CTkButton(right_frame, image=settings_image,  text="", width=60, height=60, corner_radius=10,  fg_color= ("#122e54", "#122e54"),
                                                                         hover_color= ("#1e3d6d", "#122e54"), command=lambda:controller.show_frame("Settings"))
-        button_4.place(relx=0.99, rely=0.99, anchor= "se")
+        button_5.place(relx=0.99, rely=0.99, anchor= "se")
 
 def welcome_label(user_name):
     Welcom_label.configure(text = f'Welcome {user_name}!')

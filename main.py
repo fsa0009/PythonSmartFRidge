@@ -1,6 +1,6 @@
 from Pages import *
 
-# Main Class
+#----------------------Main Class-----------------------#
 class SmartFridgeApp(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         customtkinter.CTk.__init__(self, *args, **kwargs)
@@ -9,7 +9,7 @@ class SmartFridgeApp(customtkinter.CTk):
         window.grid_rowconfigure(0, weight=1)
         window.grid_columnconfigure(0, weight=1)
 
-        # this data is shared among all the classes
+        # this data is shared among all the classes"
         self.app_login_cred = {'email': StringVar(), 'idToken': StringVar(), 'localId': StringVar()}
 
         self.frames = {}
@@ -49,28 +49,14 @@ class SmartFridgeApp(customtkinter.CTk):
         frame = self.frames[page_name]
         frame.tkraise()
 
+
+
     # Call Matchbox keyboard automatically
     def entry_callback(self, event):
         #os.popen('matchbox-keyboard','r',4096)
         pass
 
-    # Functions for Settings Page
-    def Reset_prompt(self): # Popup confirming reset
-        choice = messagebox.askquestion("Reset", "Are you sure you want to reset? \n Proceeding will sign you out")
-        if choice == 'yes':
-            reset_settings()
-            self.show_frame("Login")
-
-    def Shutdown_prompt(self): # Popup confirming shutdown
-        choice = messagebox.askquestion("Shutdown", "Are you sure you want to shutdown the system?")
-        if choice == 'yes':
-            subprocess.call(['sudo', 'shutdown', '-h', '-t 5', 'now'])
-
-    def Restart_prompt(self): # Popup confirming restart
-        choice = messagebox.askquestion("Reboot", "Are you sure you want to reboot the system?")
-        if choice == 'yes':
-            subprocess.call(['sudo', 'shutdown', '-r', '-t 5', 'now'])
-
+    # Extra Widgets (Theme and Clock/Time)
     def show_clock_date(self):
         date=dt.datetime.now()
         format_date=f"{date:%a, %b %d %Y}"
@@ -95,8 +81,6 @@ class SmartFridgeApp(customtkinter.CTk):
         date_label.place_forget()
         clock.place_forget()
 
-
-    # Functions for changing theme
     def change_appearance_mode(self):
         if switch.get() == 0:
             customtkinter.set_appearance_mode("dark")
@@ -110,7 +94,7 @@ class SmartFridgeApp(customtkinter.CTk):
         switch.place(relx=0.02, rely=0.97, anchor= "sw")
         switch.deselect()
 
-############ Initiallize app ############
+#----------------------Initiallize----------------------#
 if __name__ == "__main__":
     root = SmartFridgeApp()
     photo = PhotoImage(file = "assets/images/WVU.png")

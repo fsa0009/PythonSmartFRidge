@@ -30,17 +30,17 @@ class Settings(customtkinter.CTkFrame):
 
 
         button_1 = customtkinter.CTkButton(right_frame, text="Reset", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
-                                            width = 350, command=controller.Reset_prompt)
+                                            width = 350, command=self.Reset_prompt)
         button_1.pack(pady = (0,30))
 
 
         button_2 = customtkinter.CTkButton(right_frame, text="Shutdown", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
-                                            width = 350, command=controller.Shutdown_prompt)
+                                            width = 350, command=self.Shutdown_prompt)
         button_2.pack()
 
 
         button_3 = customtkinter.CTkButton(right_frame, text="Reboot", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
-                                            width = 350, command=controller.Restart_prompt)
+                                            width = 350, command=self.Restart_prompt)
         button_3.pack(pady = 30)
 
 
@@ -71,3 +71,23 @@ class Settings(customtkinter.CTkFrame):
                 command=lambda:controller.show_frame("MainMenu")
             ).place(relx=0.98, rely=0.97, anchor= "se")
         
+
+    # Functions for Settings Page
+    def Reset_prompt(self): # Popup confirming reset
+        choice = messagebox.askquestion("Reset", "Are you sure you want to reset? \n Proceeding will sign you out")
+        if choice == 'yes':
+            cleanup()
+            empty_pantry()
+            empty_nonpantry()
+            empty_shopping()
+            self.controller.show_frame("Login")
+
+    def Shutdown_prompt(self): # Popup confirming shutdown
+        choice = messagebox.askquestion("Shutdown", "Are you sure you want to shutdown the system?")
+        if choice == 'yes':
+            subprocess.call(['sudo', 'shutdown', '-h', '-t 5', 'now'])
+
+    def Restart_prompt(self): # Popup confirming restart
+        choice = messagebox.askquestion("Reboot", "Are you sure you want to reboot the system?")
+        if choice == 'yes':
+            subprocess.call(['sudo', 'shutdown', '-r', '-t 5', 'now'])
