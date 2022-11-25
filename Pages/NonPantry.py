@@ -2,6 +2,7 @@ from Pages import *
 from Pages.Shopping import query_database_shopping
 from Tools.Firebase import FirebaseConfig
 
+
 class NonPantryList(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master)
@@ -182,14 +183,14 @@ def query_database_non(accountid):
         ExpirationDay = datetime.datetime.strptime(datalist[2],"%m/%d/%Y").date()
         Today = date.today()
 
-        NonPantryList.tag_configure('fail', background = "red")
+        NonPantryList.tag_configure('expired', background = "red")
         NonPantryList.tag_configure('normal', background = "")
 
         aNonPantryList.tag_configure('fail', background = "red")
         aNonPantryList.tag_configure('normal', background = "")
 
         my_tag = 'normal'
-        my_tag = 'fail' if ExpirationDay<Today else 'normal'
+        my_tag = 'expired' if ExpirationDay<Today else 'normal'
 
         NonPantryList.insert("", "end", values=(
                                         datalist[0],
@@ -207,6 +208,7 @@ def query_database_non(accountid):
                                         ),
                                         tags=my_tag
                     )
+
         NonPantryList.tag_configure('low', background = "red")
         NonPantryList.tag_configure('normal', background = "")
 
@@ -300,7 +302,10 @@ def delete_item_non(): # Delete selected ITEM
             # Clear the Treeview, clear entries, and pull database
             NonPantryList.delete(*NonPantryList.get_children())
             aNonPantryList.delete(*aNonPantryList.get_children())
-            query_database_non(UserID)
+            try:
+                query_database_non(UserID)
+            except:
+                pass
             cleanup()
 
 def delete_all_non(): # Delets all ITEMS

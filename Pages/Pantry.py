@@ -66,10 +66,10 @@ class OptionsPantryList(customtkinter.CTkFrame):
         global amount_entry
         global barcode_entry
         global oid_entry
-        global intitial_weight
         global update_button
         global delete_button
         global unix_time
+
         # Corner Picture (logo)
         logo_img = Image.open("assets/images/WVU.png")
         logo_img = logo_img.resize((100, 100), Image.ANTIALIAS)
@@ -144,8 +144,8 @@ class OptionsPantryList(customtkinter.CTkFrame):
         barcode_entry.place(x=1190, y=430, anchor="e")
 
         # AddItems Page customtkinter.CTkButton
-        AddItems_button = customtkinter.CTkButton(self, image=add_image,  text="", width=60, height=60, corner_radius=10,  command = lambda: threading.Thread(target=add_record).start())
-        #AddItems_button = customtkinter.CTkButton(self, image=add_image,  text="", width=60, height=60, corner_radius=10,  command = add_record)
+        #AddItems_button = customtkinter.CTkButton(self, image=add_image,  text="", width=60, height=60, corner_radius=10,  command = lambda: threading.Thread(target=add_record).start())
+        AddItems_button = customtkinter.CTkButton(self, image=add_image,  text="", width=60, height=60, corner_radius=10,  command = lambda : threading.Thread(target= add_record).start())
         AddItems_button.place(x=1260, y=150, anchor="e")
 
         # Update Items Button
@@ -178,15 +178,19 @@ class OptionsPantryList(customtkinter.CTkFrame):
         # Bind the treeview
         List.bind("<ButtonRelease-1>", select_record)
 
-        intitial_weight = 1500
         exdate_entry.delete(0,END)
-
 
 
 # Functions for Pantry Items
 def query_database(accountid):
     global UserID
     UserID = accountid
+
+    # Clearing List
+    for item in List.get_children():
+        List.delete(item)
+    for item in aList.get_children():
+        aList.delete(item)
     # pull data
     db = FirebaseConfig().firebase.database()
     Items = db.child("pantry-items").child(accountid).get()
@@ -198,15 +202,27 @@ def query_database(accountid):
         ExpirationDay = datetime.datetime.strptime(datalist[2],"%m/%d/%Y").date()
         Today = date.today()
 
-        List.tag_configure('low', background = "red")
+        List.tag_configure('LowExpired', background = "red")
         List.tag_configure('normal', background = "")
+        List.tag_configure('low', background = "Orange")
+        List.tag_configure('expired', background = "red")
 
-        aList.tag_configure('low', background = "red")
+        aList.tag_configure('LowExpired', background = "red")
         aList.tag_configure('normal', background = "")
+        aList.tag_configure('low', background = "Orange")
+        aList.tag_configure('expired', background = "red")
 
-        my_tag = 'normal'
+        if Amount_Percentage<=20 and ExpirationDay<Today: 
+            my_tag = 'LowExpired'
 
-        my_tag = 'low' if Amount_Percentage<=20 or ExpirationDay<Today else 'normal'
+        elif ExpirationDay<Today:
+            my_tag = 'expired'
+
+        elif Amount_Percentage<=20:
+            my_tag = 'low'
+
+        else:
+            my_tag = 'normal'
 
         List.insert("", "end", values=(
                                         datalist[0],
@@ -232,7 +248,7 @@ def query_database(accountid):
 def add_record(): # adds data to the table (List)
     if name_entry.get()=="":
         messagebox.showerror("", "Item's data needed")
-    else:
+
         Initial_Weight()
         data =  {
                     'A_Name': name_entry.get(),
@@ -242,10 +258,10 @@ def add_record(): # adds data to the table (List)
                     'E_ExpirationDateUnix': unix_time,
                     'F_CurrentWeight':InitialWeight,
                     'G_InitialWeight': InitialWeight,
-                    'H_GridLocation': "1",
+                    'H_GridLocation': sensorLocation,
                 }
         db = FirebaseConfig().firebase.database()
-        db.child("pantry-items").child(UserID).push(data)
+        db.child("pantry-items").child(UserID).child("sensor_" + sensorLocation).set(data)
 
         Items = db.child("pantry-items").child(UserID).get()
         for itemsData in Items.each():
@@ -254,7 +270,7 @@ def add_record(): # adds data to the table (List)
                 data =  {
                             'I_ID': itemsData.key()
                         }
-                db.child("pantry-items").child(UserID).child(itemsData.key()).update(data)
+                db.child("pantry-items").child(UserID).child(key).update(data)
 
         if barcode_entry.get()!="":
             datacode =  {
@@ -265,12 +281,11 @@ def add_record(): # adds data to the table (List)
 
         else:
             pass
-        # Clear the Treeview, clear entries, and pull database
-        List.delete(*List.get_children())
-        aList.delete(*aList.get_children())
         query_database(UserID)
-        cleanup()
-        threading.Thread(target=Current_Weight(key)).start()
+        
+        #start current thread
+        threading.Thread(target=Current_Weight()).start()
+
 
 def select_record(e):
     try:
@@ -337,8 +352,10 @@ def delete_item(): # Delete selected ITEM
             # Clear the Treeview, clear entries, and pull database
             List.delete(*List.get_children())
             aList.delete(*aList.get_children())
-
-            query_database(UserID)
+            try:
+                query_database(UserID)
+            except:
+                pass
             cleanup()
 
 def delete_all_items(): # Delets all ITEMS
@@ -441,75 +458,276 @@ def empty_pantry():
 
 # Sensors Functions:
 def Initial_Weight():
-    Arduino = serial.Serial('COM3' , 57600)
+    try :
+        Arduino_Current.close()
+    except :
+        pass
+
+    global starter 
+    global Boolean
     global InitialWeight
+    global sensorLocation
+    global InitialWeight1
+    global InitialWeight2
+    global InitialWeight3
+    global InitialWeight4
+    global InitialWeight5
+    global InitialWeight6
+
+    starter = 0 
+    Boolean = False
     InitialWeight = None
     count = 0
-    while True:
-        if Arduino.inWaiting()>0:
-            count += 1
-            Reading_Weight = Arduino.readline().decode()
-            Weight_List = Reading_Weight.split()
-            if len(Weight_List) > 3:
-                if float(Weight_List[3]) > 0 :
-                    InitialWeight = int(float(Weight_List[3]))
-            if count == 5:
-                # print("Cell 1 initial Weight:")
-                # print(f'{InitialWeight} grams')
-                Arduino.flush()
-                break
 
-def Current_Weight(key):
-    Arduino = serial.Serial('COM3' , 57600)
-    # global CurrentWeight
-    # CurrentWeight = None
-    # PreWeight = None
-    count = 0
-    while True:
-        if Arduino.inWaiting()>0:
-            count += 1
-            Reading_Weight = Arduino.readline().decode()
-            Weight_List = Reading_Weight.split()
-            if len(Weight_List) > 3:
-                if float(Weight_List[3]) > 0 :
-                    CurrentWeight = int(float(Weight_List[3]))
-            if count == 5:
-                #print("Cell 1 Current Weight:")
-                #print(f'{CurrentWeight} grams')
-                Arduino.flush()
-                break
+    if Boolean == False :
+        Arduino = serial.Serial('COM7' , 57600)
 
+        db = FirebaseConfig().firebase.database()
+        Items = db.child("pantry-items").child(UserID).shallow().get()
 
-    db = FirebaseConfig().firebase.database()
-    Items = db.child("pantry-items").child(UserID).child(key).get()
-    # for itemsData in Items.each():
-    #     data =  {
-    #                 'D_WeightPercentage':f'{int((CurrentWeight/InitialWeight)*100)}%',
-    #                 'F_CurrentWeight':CurrentWeight
-    #             }
-    #     db.child("pantry-items").child(UserID).child(key).update(data)
-    data =  {
-                'D_WeightPercentage':f'{int((CurrentWeight/InitialWeight)*100)}%',
-                'F_CurrentWeight':CurrentWeight
-            }
-    
-    db.child("pantry-items").child(UserID).child(key).update(data)
-    
-    ItemsDict = Items.val()
-    ItemsValues = ItemsDict.values()
-    ItemsList = list(ItemsValues)
-    PreWeight = ItemsList[5]
+        try :
+            URLs = list(Items.val())
+        except:
+            URLs = ""
 
-    #print(f'Current Weight is = {CurrentWeight}')
-    #print(f'Previous Weight is = {PreWeight}')
-    
-    if PreWeight < CurrentWeight-10 or PreWeight > CurrentWeight+10:
-        List.delete(*List.get_children())
-        aList.delete(*aList.get_children())
-        query_database(UserID)
-    else:
-        pass
-        #print("PreWeight = Current_Weight")
+        while True:
+            if Arduino.inWaiting()>0:
+                count += 1
+                Reading_Weight = Arduino.readline().decode('ISO-8859-1')
+                Weight_List = Reading_Weight.split()
+
+                if len(Weight_List) == 6:
+                    InitialWeight1 = int((Weight_List[0])) + 1
+                    InitialWeight2 = int((Weight_List[1])) + 1
+                    InitialWeight3 = int((Weight_List[2])) + 1
+                    InitialWeight4 = int((Weight_List[3])) + 1
+                    InitialWeight5 = int((Weight_List[4])) + 1
+                    InitialWeight6 = int((Weight_List[5])) + 1
+
+                    if InitialWeight1 > 0+30  and "sensor_1" not in URLs:
+                        if count == 5:
+                            InitialWeight = InitialWeight1
+                            sensorLocation = "1"
+                            Arduino.flush()
+                            break
+
+                    if InitialWeight2 > 0+30 and  "sensor_2" not in URLs:
+                        if count == 5:
+                            InitialWeight = InitialWeight2
+                            sensorLocation = "2"
+                            Arduino.flush()
+                            break
+
+                    if InitialWeight3 > 0+30  and "sensor_3" not in URLs:
+                        if count == 5:
+                            InitialWeight = InitialWeight3
+                            sensorLocation = "3"
+                            Arduino.flush()
+                            break
+
+                    if InitialWeight4 > 0+30 and  "sensor_4" not in URLs:
+                        if count == 5:
+                            InitialWeight = InitialWeight4
+                            sensorLocation = "4"
+                            Arduino.flush()
+                            break
+
+                    if InitialWeight5 > 0+30  and "sensor_5" not in URLs:
+                        if count == 5:
+                            InitialWeight = InitialWeight5
+                            sensorLocation = "5"
+                            Arduino.flush()
+                            break
+
+                    if InitialWeight6 > 0+30 and  "sensor_6" not in URLs:
+                        if count == 5:
+                            InitialWeight = InitialWeight6
+                            sensorLocation = "6"
+                            Arduino.flush()
+                            break
+
+    starter +=1 
     Arduino.close()
-    #time.sleep(5)
-    Current_Weight(key)
+    time.sleep(2)
+    Boolean = True
+
+def Current_Weight():
+    global Arduino_Current
+
+    if (Boolean) :
+        Arduino_Current = serial.Serial('COM7' , 57600)
+        db = FirebaseConfig().firebase.database()
+        count = 0
+        Items = db.child("pantry-items").child(UserID).shallow().get()
+        try :
+            URLs = list(Items.val())
+        except:
+            URLs = ""
+
+        while True:
+            if Arduino_Current.inWaiting()>0:
+                count += 1
+                Reading_Weight = Arduino_Current.readline().decode('ISO-8859-1')
+                Weight_List = Reading_Weight.split()
+
+                if len(Weight_List) == 6 :
+
+                    result1 = re.sub(r'[^0-9.]', '', Weight_List[0])
+                    CurrentWeight1 = int(result1)
+
+                    result2 = re.sub(r'[^0-9.]', '', Weight_List[1])
+                    CurrentWeight2 = int(result2)
+
+                    result3 = re.sub(r'[^0-9.]', '', Weight_List[2])
+                    CurrentWeight3 = int(result3)
+
+                    result4 = re.sub(r'[^0-9.]', '', Weight_List[3])
+                    CurrentWeight4 = int(result4)
+
+                    result5 = re.sub(r'[^0-9.]', '', Weight_List[4])
+                    CurrentWeight5 = int(result5)
+
+                    result6 = re.sub(r'[^0-9.]', '', Weight_List[5])
+                    CurrentWeight6 = int(result6)
+
+                if count == 5:
+                    Arduino_Current.flush()
+                    break
+
+        if "sensor_1" in URLs:
+            
+            Items = db.child("pantry-items").child(UserID).child("sensor_1").get()
+            try:
+                G_InitialWeight1 = Items.val()["G_InitialWeight"]
+
+                data =  {
+                            'D_WeightPercentage':f'{int((CurrentWeight1/G_InitialWeight1)*100)}%',
+                            'F_CurrentWeight':CurrentWeight1
+                        }
+                db.child("pantry-items").child(UserID).child("sensor_1").update(data)
+
+                ItemsDict = Items.val()
+                ItemsValues = ItemsDict.values()
+                ItemsList = list(ItemsValues)
+                PreWeight = ItemsList[5]
+
+                if PreWeight < CurrentWeight1-10 or PreWeight > CurrentWeight1+10:
+                    query_database(UserID)
+                else:
+                    pass
+            except:
+                pass
+
+        if "sensor_2" in URLs:
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_2").get()
+            
+            G_InitialWeight2 = Items.val()["G_InitialWeight"]
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_2").get()
+            data =  {
+                        'D_WeightPercentage':f'{int((CurrentWeight2/G_InitialWeight2)*100)}%',
+                        'F_CurrentWeight':CurrentWeight2
+                    }
+            db.child("pantry-items").child(UserID).child("sensor_2").update(data)
+
+            ItemsDict = Items.val()
+            ItemsValues = ItemsDict.values()
+            ItemsList = list(ItemsValues)
+            PreWeight = ItemsList[5]
+            if PreWeight < CurrentWeight2-10 or PreWeight > CurrentWeight2+10:
+                query_database(UserID)
+            else:
+                pass
+
+        if "sensor_3" in URLs:
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_3").get()
+            
+            G_InitialWeight3 = Items.val()["G_InitialWeight"]
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_3").get()
+            data =  {
+                        'D_WeightPercentage':f'{int((CurrentWeight3/G_InitialWeight3)*100)}%',
+                        'F_CurrentWeight':CurrentWeight3
+                    }
+            db.child("pantry-items").child(UserID).child("sensor_3").update(data)
+
+            ItemsDict = Items.val()
+            ItemsValues = ItemsDict.values()
+            ItemsList = list(ItemsValues)
+            PreWeight = ItemsList[5]
+            if PreWeight < CurrentWeight3-10 or PreWeight > CurrentWeight3+10:
+                query_database(UserID)
+            else:
+                pass
+
+        if "sensor_4" in URLs:
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_4").get()
+            
+            G_InitialWeight4 = Items.val()["G_InitialWeight"]
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_4").get()
+            data =  {
+                        'D_WeightPercentage':f'{int((CurrentWeight4/G_InitialWeight4)*100)}%',
+                        'F_CurrentWeight':CurrentWeight4
+                    }
+            db.child("pantry-items").child(UserID).child("sensor_4").update(data)
+
+            ItemsDict = Items.val()
+            ItemsValues = ItemsDict.values()
+            ItemsList = list(ItemsValues)
+            PreWeight = ItemsList[5]
+            if PreWeight < CurrentWeight4-10 or PreWeight > CurrentWeight4+10:
+                query_database(UserID)
+            else:
+                pass
+
+        if "sensor_5" in URLs:
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_5").get()
+            
+            G_InitialWeight5 = Items.val()["G_InitialWeight"]
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_5").get()
+            data =  {
+                        'D_WeightPercentage':f'{int((CurrentWeight5/G_InitialWeight5)*100)}%',
+                        'F_CurrentWeight':CurrentWeight5
+                    }
+            db.child("pantry-items").child(UserID).child("sensor_5").update(data)
+
+            ItemsDict = Items.val()
+            ItemsValues = ItemsDict.values()
+            ItemsList = list(ItemsValues)
+            PreWeight = ItemsList[5]
+            if PreWeight < CurrentWeight5-10 or PreWeight > CurrentWeight5+10:
+                query_database(UserID)
+            else:
+                pass
+
+        if "sensor_6" in URLs:
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_6").get()
+            
+            G_InitialWeight6 = Items.val()["G_InitialWeight"]
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_6").get()
+            data =  {
+                        'D_WeightPercentage':f'{int((CurrentWeight6/G_InitialWeight6)*100)}%',
+                        'F_CurrentWeight':CurrentWeight6
+                    }
+            db.child("pantry-items").child(UserID).child("sensor_6").update(data)
+
+            ItemsDict = Items.val()
+            ItemsValues = ItemsDict.values()
+            ItemsList = list(ItemsValues)
+            PreWeight = ItemsList[6]
+            if PreWeight < CurrentWeight6-10 or PreWeight > CurrentWeight6+10:
+                query_database(UserID)
+            else:
+                pass
+
+        Arduino_Current.close()
+    time.sleep(2)
+    Current_Weight()

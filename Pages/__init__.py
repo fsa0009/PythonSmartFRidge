@@ -14,6 +14,7 @@ import sys
 import datetime
 import serial
 import threading
+import re
 from tkinter import StringVar
 from datetime import date
 from tkinter import *

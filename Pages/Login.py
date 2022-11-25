@@ -134,7 +134,6 @@ class Login(customtkinter.CTkFrame):
 
         def login_user(): # Login Process
 
-                    
             if (username_entry.get() == '') or (password_entry.get() == ''):
                 messagebox.showerror("","Email/Password cannot be empty!")
             else:
@@ -158,7 +157,6 @@ class Login(customtkinter.CTkFrame):
                         controller.app_login_cred['email'].set(response['email'])
                         controller.app_login_cred['idToken'].set(response['idToken'])
                         controller.app_login_cred['localId'].set(user['localId'])
-                        #FirebaseConfig().auth.refresh(user['refreshToken'])
                         username_entry.delete(0, END)
                         password_entry.delete(0, END)
                         command = controller.show_frame("MainMenu")
@@ -169,7 +167,6 @@ class Login(customtkinter.CTkFrame):
                         global user_name
                         user_name = info_values[1]
                         welcome_label(user_name)
-
                         # Pulling Users Data
                         try:
                             query_database(accountid)
@@ -179,55 +176,12 @@ class Login(customtkinter.CTkFrame):
                             query_database_non(accountid)
                         except:
                             pass
-                        # try:
-                        #     query_database_shopping(accountid)
-                        # except:
-                        #     pass
                     else:
                         pass
                 else:
                     messagebox.showerror("", "Verification Failed")
 
-        def login_skip(): # Login Process
 
-            Email = ""
-            password = ""
-            response = FirebaseConfig().login(Email, password)
-            if response:
-                tok = response['idToken']
-                complete_account_info = FirebaseConfig().auth.get_account_info(tok)
-                user = FirebaseConfig().auth.sign_in_with_email_and_password(Email, password)
-                email_verified = complete_account_info['users'][0]['emailVerified']
-
-                if email_verified:
-                    controller.app_login_cred['email'].set(response['email'])
-                    controller.app_login_cred['idToken'].set(response['idToken'])
-                    controller.app_login_cred['localId'].set(user['localId'])
-                    #FirebaseConfig().auth.refresh(user['refreshToken'])
-                    controller.show_frame("MainMenu")
-                    accountid = user['localId']
-                    db = FirebaseConfig().firebase.database()
-                    info = db.child("my-info").child(user['localId']).get()
-                    info_values = list(info.val().values())
-                    global user_name
-                    user_name = info_values[1]
-                    welcome_label(user_name)
-                    # Pulling Users Data
-                    try:
-                        query_database(accountid)
-                    except:
-                        pass
-                    try:
-                        query_database_non(accountid)
-                    except:
-                        pass
-                    # try:
-                    #     query_database_shopping(accountid)
-                    # except:
-                    #     pass
-            else:
-                pass
-        
         # Proceed Login button
         loginBtn1 = customtkinter.CTkButton(right_frame, text='Login', text_font=("yu gothic ui bold", 15), cursor='hand2', command = login_user, width=256, height=50)
         loginBtn1.pack()

@@ -1,6 +1,5 @@
 from Pages import *
 
-
 class MainMenu(customtkinter.CTkFrame):
     def __init__(self, master, controller):
         customtkinter.CTkFrame.__init__(self, master )
@@ -56,3 +55,5 @@ class MainMenu(customtkinter.CTkFrame):
 
 def welcome_label(user_name):
     Welcom_label.configure(text = f'Welcome {user_name}!')
+
+

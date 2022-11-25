@@ -226,9 +226,9 @@ def generate_shopping():
             ExpirationDay = datetime.datetime.strptime(datalist[2],"%m/%d/%Y").date()
             Today = date.today()
 
-            my_tag = 'low' if ExpirationDay<Today else 'normal'
+            my_tag = 'expired' if ExpirationDay<Today else 'normal'
 
-            if my_tag == 'low':
+            if my_tag == 'expired':
                 ShoppingList.insert("", "end", values=(
                                                 datalist[0],
                                                 datalist[1],
