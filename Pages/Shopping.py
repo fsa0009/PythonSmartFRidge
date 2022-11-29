@@ -180,10 +180,9 @@ def query_database_shopping(accountid):
                         )
     except:
         pass
-    try:
-        generate_shopping()
-    except:
-        pass
+
+    generate_shopping()
+
 
 def generate_shopping():
     db = FirebaseConfig().firebase.database()
@@ -195,7 +194,7 @@ def generate_shopping():
             data = itemsData.val()
             datalist = list(data.values())
 
-            Amount_Percentage  = int((int(datalist[5])/datalist[6])*100)
+            Amount_Percentage  = int((int(datalist[5])/int(datalist[6]))*100)
             ExpirationDay = datetime.datetime.strptime(datalist[2],"%m/%d/%Y").date()
             Today = date.today()
 

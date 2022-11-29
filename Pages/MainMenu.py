@@ -46,7 +46,7 @@ class MainMenu(customtkinter.CTkFrame):
         button_3.pack(pady = 30)
 
         button_4 = customtkinter.CTkButton(right_frame, text="Recipes", text_font=("TkHeadingtext_font", 25) , cursor="hand2",
-                                            width = 350, command=lambda:controller.show_frame("RecipeSuggestions"))
+                                            width = 350, command=lambda:controller.show_frame("Recipes"))
         button_4.pack()
         
         button_5 = customtkinter.CTkButton(right_frame, image=settings_image,  text="", width=60, height=60, corner_radius=10,  fg_color= ("#122e54", "#122e54"),

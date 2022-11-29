@@ -186,7 +186,7 @@ def query_database_non(accountid):
         NonPantryList.tag_configure('expired', background = "red")
         NonPantryList.tag_configure('normal', background = "")
 
-        aNonPantryList.tag_configure('fail', background = "red")
+        aNonPantryList.tag_configure('expired', background = "red")
         aNonPantryList.tag_configure('normal', background = "")
 
         my_tag = 'normal'

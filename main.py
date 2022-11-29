@@ -22,7 +22,10 @@ class SmartFridgeApp(customtkinter.CTk):
                   OptionsNonPantryList,
                   SuggestedShopping,
                   OptionsSuggestedShopping,
+                  Recipes,
                   RecipeSuggestions,
+                  AllRecipes,
+                  AddRecipes,
                   Settings):
             page_name = F.__name__
             global frame
