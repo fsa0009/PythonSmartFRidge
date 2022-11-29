@@ -566,7 +566,7 @@ def Current_Weight():
                 Reading_Weight = Arduino_Weight.readline().decode('ISO-8859-1')
                 Weight_List = Reading_Weight.split()
 
-                if len(Weight_List) == 3 :
+                if len(Weight_List) == 6 :
 
                     result1 = re.sub(r'[^0-9.]', '', Weight_List[0])
                     CurrentWeight1 = int(result1)
@@ -577,16 +577,26 @@ def Current_Weight():
                     result3 = re.sub(r'[^0-9.]', '', Weight_List[2])
                     CurrentWeight3 = int(result3)
 
+                    result4 = re.sub(r'[^0-9.]', '', Weight_List[3])
+                    CurrentWeight4 = int(result4)
+
+                    result5 = re.sub(r'[^0-9.]', '', Weight_List[4])
+                    CurrentWeight5 = int(result5)
+
+                    result6 = re.sub(r'[^0-9.]', '', Weight_List[5])
+                    CurrentWeight6 = int(result6)
+
                     #CurrentWeight1 = int((Weight_List[0]))
                     #CurrentWeight2 = int((Weight_List[1]))
                 if count == 5:
                     Arduino_Weight.flush()
                     break
 
-        print(CurrentWeight1 ,  "weight 1 current weight func")
-        print(CurrentWeight2 ,  "weight 2 current weight func")
-        print(CurrentWeight3 ,  "weight 3 current weight func")
-        print(URLs, "this is urls")
+        # print(CurrentWeight1 ,  "weight 1 current weight func")
+        # print(CurrentWeight2 ,  "weight 2 current weight func")
+        # print(CurrentWeight3 ,  "weight 3 current weight func")
+        # print(CurrentWeight4 ,  "weight 4 current weight func")
+        # print(URLs, "this is urls")
 
         if "sensor_1" in URLs:
 
@@ -675,6 +685,89 @@ def Current_Weight():
                 #aList.delete(aList.get_children())
                 query_database(UserID)
 
+        if "sensor_4" in URLs:
+
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_4").get()
+
+            G_InitialWeight4 = Items.val()["G_InitialWeight"]
+            #print(G_InitialWeight1)
+
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_4").get()
+            data =  {
+                        'D_WeightPercentage':f'{int((CurrentWeight4/G_InitialWeight4)*100)}%',
+                        'F_CurrentWeight':CurrentWeight4
+                    }
+            db.child("pantry-items").child(UserID).child("sensor_4").update(data)
+
+            ItemsDict = Items.val()
+            ItemsValues = ItemsDict.values()
+            ItemsList = list(ItemsValues)
+            PreWeight = ItemsList[5]
+            print("we are insside sensor 4")
+
+            if PreWeight < CurrentWeight4-10 or PreWeight > CurrentWeight4+10:
+                #List.delete(List.get_children())
+                #aList.delete(aList.get_children())
+                query_database(UserID)
+
+
+        if "sensor_5" in URLs:
+
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_5").get()
+
+            G_InitialWeight5 = Items.val()["G_InitialWeight"]
+            #print(G_InitialWeight1)
+
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_5").get()
+            data =  {
+                        'D_WeightPercentage':f'{int((CurrentWeight5/G_InitialWeight5)*100)}%',
+                        'F_CurrentWeight':CurrentWeight5
+                    }
+            db.child("pantry-items").child(UserID).child("sensor_5").update(data)
+
+            ItemsDict = Items.val()
+            ItemsValues = ItemsDict.values()
+            ItemsList = list(ItemsValues)
+            PreWeight = ItemsList[5]
+            print("we are insside sensor 5")
+
+            if PreWeight < CurrentWeight5-10 or PreWeight > CurrentWeight5+10:
+                #List.delete(List.get_children())
+                #aList.delete(aList.get_children())
+                query_database(UserID)
+
+
+        if "sensor_6" in URLs:
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_6").get()
+
+            G_InitialWeight6 = Items.val()["G_InitialWeight"]
+            #print(G_InitialWeight1)
+
+
+            Items = db.child("pantry-items").child(UserID).child("sensor_6").get()
+            data =  {
+                        'D_WeightPercentage':f'{int((CurrentWeight6/G_InitialWeight6)*100)}%',
+                        'F_CurrentWeight':CurrentWeight6
+                    }
+            db.child("pantry-items").child(UserID).child("sensor_6").update(data)
+
+            ItemsDict = Items.val()
+            ItemsValues = ItemsDict.values()
+            ItemsList = list(ItemsValues)
+            PreWeight = ItemsList[5]
+            print("we are insside sensor 6")
+
+            if PreWeight < CurrentWeight6-10 or PreWeight > CurrentWeight6+10:
+                #List.delete(List.get_children())
+                #aList.delete(aList.get_children())
+                query_database(UserID)
+
+
         #time.sleep(2)
         #Arduino_Current.close()
         Arduino_Weight.close()
@@ -692,7 +785,6 @@ def Initial_Weight():
     except :
         pass
 
-
     global starter
     starter = 0
     global InitialWeight
@@ -700,6 +792,9 @@ def Initial_Weight():
     global InitialWeight1
     global InitialWeight2
     global InitialWeight3
+    global InitialWeight4
+    global InitialWeight5
+    global InitialWeight6
 
     global Boolean
     Boolean = False
@@ -724,17 +819,22 @@ def Initial_Weight():
                 Reading_Weight = Arduino.readline().decode('ISO-8859-1')
                 Weight_List = Reading_Weight.split()
 
-                if len(Weight_List) == 3 :
+                if len(Weight_List) == 6 :
                     InitialWeight1 = int((Weight_List[0])) +1
                     InitialWeight2 = int((Weight_List[1]))+ 1
                     InitialWeight3 = int((Weight_List[2]))+ 1
+                    InitialWeight4 = int((Weight_List[3]))+ 1
+                    InitialWeight5 = int((Weight_List[4]))+ 1
+                    InitialWeight6 = int((Weight_List[5]))+ 1
 
                     if InitialWeight1 > 0+30  and "sensor_1" not in URLs :
                         if count == 5:
-                            # print("Cell 1 initial Weight:")
                             print(f'{InitialWeight1} grams in sensor 1 (Initial Weight Func)')
                             print(f'{InitialWeight2} grams in sensor 2 (Initial Weight Func)')
                             print(f'{InitialWeight3} grams in sensor 3 (Initial Weight Func)')
+                            print(f'{InitialWeight4} grams in sensor 4 (Initial Weight Func)')
+                            print(f'{InitialWeight5} grams in sensor 5 (Initial Weight Func)')
+                            print(f'{InitialWeight6} grams in sensor 6 (Initial Weight Func)')
                             InitialWeight = InitialWeight1
                             sensorLocation = "1"
                             Arduino.flush()
@@ -742,10 +842,12 @@ def Initial_Weight():
 
                     if InitialWeight2 > 0+30 and  "sensor_2" not in URLs :
                         if count == 5:
-                            # print("Cell 1 initial Weight:")
                             print(f'{InitialWeight1} grams in sensor 1 (Initial Weight Func)')
                             print(f'{InitialWeight2} grams in sensor 2 (Initial Weight Func)')
                             print(f'{InitialWeight3} grams in sensor 3 (Initial Weight Func)')
+                            print(f'{InitialWeight4} grams in sensor 4 (Initial Weight Func)')
+                            print(f'{InitialWeight5} grams in sensor 5 (Initial Weight Func)')
+                            print(f'{InitialWeight6} grams in sensor 6 (Initial Weight Func)')
                             InitialWeight = InitialWeight2
                             sensorLocation = "2"
                             Arduino.flush()
@@ -753,12 +855,53 @@ def Initial_Weight():
 
                     if InitialWeight3 > 0+30 and  "sensor_3" not in URLs :
                         if count == 5:
-                            # print("Cell 3 initial Weight:")
                             print(f'{InitialWeight1} grams in sensor 1 (Initial Weight Func)')
                             print(f'{InitialWeight2} grams in sensor 2 (Initial Weight Func)')
                             print(f'{InitialWeight3} grams in sensor 3 (Initial Weight Func)')
+                            print(f'{InitialWeight4} grams in sensor 4 (Initial Weight Func)')
+                            print(f'{InitialWeight5} grams in sensor 5 (Initial Weight Func)')
+                            print(f'{InitialWeight6} grams in sensor 6 (Initial Weight Func)')
                             InitialWeight = InitialWeight3
                             sensorLocation = "3"
+                            Arduino.flush()
+                            break
+
+                    if InitialWeight4 > 0+30 and  "sensor_4" not in URLs :
+                        if count == 5:
+                            print(f'{InitialWeight1} grams in sensor 1 (Initial Weight Func)')
+                            print(f'{InitialWeight2} grams in sensor 2 (Initial Weight Func)')
+                            print(f'{InitialWeight3} grams in sensor 3 (Initial Weight Func)')
+                            print(f'{InitialWeight4} grams in sensor 4 (Initial Weight Func)')
+                            print(f'{InitialWeight5} grams in sensor 5 (Initial Weight Func)')
+                            print(f'{InitialWeight6} grams in sensor 6 (Initial Weight Func)')
+                            InitialWeight = InitialWeight4
+                            sensorLocation = "4"
+                            Arduino.flush()
+                            break
+
+                    if InitialWeight5 > 0+30 and  "sensor_5" not in URLs :
+                        if count == 5:
+                            print(f'{InitialWeight1} grams in sensor 1 (Initial Weight Func)')
+                            print(f'{InitialWeight2} grams in sensor 2 (Initial Weight Func)')
+                            print(f'{InitialWeight3} grams in sensor 3 (Initial Weight Func)')
+                            print(f'{InitialWeight4} grams in sensor 4 (Initial Weight Func)')
+                            print(f'{InitialWeight5} grams in sensor 5 (Initial Weight Func)')
+                            print(f'{InitialWeight6} grams in sensor 6 (Initial Weight Func)')
+                            InitialWeight = InitialWeight5
+                            sensorLocation = "5"
+                            Arduino.flush()
+                            break
+
+                    if InitialWeight6 > 0+30 and  "sensor_6" not in URLs :
+                        if count == 5:
+                            print(f'{InitialWeight1} grams in sensor 1 (Initial Weight Func)')
+                            print(f'{InitialWeight2} grams in sensor 2 (Initial Weight Func)')
+                            print(f'{InitialWeight3} grams in sensor 3 (Initial Weight Func)')
+                            print(f'{InitialWeight4} grams in sensor 4 (Initial Weight Func)')
+                            print(f'{InitialWeight5} grams in sensor 5 (Initial Weight Func)')
+                            print(f'{InitialWeight6} grams in sensor 6 (Initial Weight Func)')
+                            InitialWeight = InitialWeight6
+                            sensorLocation = "6"
                             Arduino.flush()
                             break
     starter +=1
